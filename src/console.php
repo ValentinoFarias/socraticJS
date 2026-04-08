@@ -28,7 +28,10 @@ $topic = $slug !== '' ? ucwords(str_replace('-', ' ', $slug)) : 'Unknown Topic';
   <nav class="nav">
     <a href="/index.php"><img class="nav__logo" src="/assets/img/logo.png" alt="SocraticJS logo"></a>
     <a class="nav__link" href="/about.php">about</a>
-    <a class="nav__link nav__link--right" href="/login.php">login/SignUp</a>
+    <div class="nav__right">
+      <a class="nav__link" href="/login.php">login</a>
+      <a class="nav__link" href="/register.php">signUp</a>
+    </div>
   </nav>
 
   <!-- ── Topic title ────────────────────────────────────────────── -->

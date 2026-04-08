@@ -1,0 +1,13 @@
+# Environment variables — never commit secrets
+.env
+*.env
+
+# Docker volume data — large binary MySQL files, not source code
+db_data/
+
+# macOS junk
+.DS_Store
+
+# Editor folders
+.vscode/
+.idea/

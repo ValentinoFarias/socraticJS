@@ -24,11 +24,14 @@ require_once __DIR__ . '/includes/functions.php';
   <nav class="nav">
     <a href="/index.php"><img class="nav__logo" src="/assets/img/logo.png" alt="SocraticJS logo"></a>
     <a class="nav__link" href="/about.php">about</a>
-    <a class="nav__link nav__link--right" href="/login.php">login/SignUp</a>
+    <div class="nav__right">
+      <a class="nav__link" href="/login.php">login</a>
+      <a class="nav__link" href="/register.php">signUp</a>
+    </div>
   </nav>
 
   <!-- ── Hero title ─────────────────────────────────────────────── -->
-  <h1 class="home__title">JavaScript Socratic Tutor</h1>
+  <h1 class="home__title">IA-Powered JavaScript Socratic Tutor</h1>
 
   <!-- ── Two computer CTAs ──────────────────────────────────────── -->
   <!--
@@ -39,12 +42,12 @@ require_once __DIR__ . '/includes/functions.php';
 
     <div class="home__computer">
       <img src="/assets/img/computer.png" alt="Retro computer">
-      <a class="home__computer-link" href="/study.php">Study</a>
+      <a class="home__computer-link" href="/study.php">study</a>
     </div>
 
     <div class="home__computer">
       <img src="/assets/img/computer.png" alt="Retro computer">
-      <a class="home__computer-link" href="/practice.php">Practice</a>
+      <a class="home__computer-link" href="/practice.php">practice</a>
     </div>
 
   </div>
