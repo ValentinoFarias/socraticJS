@@ -1,8 +1,8 @@
 <?php
 // practice.php — JS Console topic picker
-// TODO: restore require_login() once auth is built
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/functions.php';
+require_login(); // Redirect to login.php if the user is not logged in
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,8 +24,15 @@ require_once __DIR__ . '/includes/functions.php';
     <a href="/index.php"><img class="nav__logo" src="/assets/img/logo.png" alt="SocraticJS logo"></a>
     <a class="nav__link" href="/about.php">about</a>
     <div class="nav__right">
-      <a class="nav__link" href="/login.php">login</a>
-      <a class="nav__link" href="/register.php">signUp</a>
+      <?php if (is_logged_in()): ?>
+        <!-- Logged-in state: greet the user and offer a logout link -->
+        <span class="nav__greeting">Hi, <?= h($_SESSION["username"]) ?></span>
+        <a class="nav__link nav__link--logout" href="/logout.php">logout</a>
+      <?php else: ?>
+        <!-- Logged-out state: show login and register links -->
+        <a class="nav__link" href="/login.php">login</a>
+        <a class="nav__link" href="/register.php">signUp</a>
+      <?php endif; ?>
     </div>
   </nav>
 

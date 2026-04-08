@@ -99,12 +99,24 @@ a:hover {
   text-decoration: none;
 }
 
-/* Right column — wraps login + signUp as a flex row, pushed to the far right */
+/* Right column — wraps login + signUp (or greeting + logout) pushed to the far right */
 .nav__right {
   display: flex;
   align-items: center;
   gap: 32px;
   justify-self: end;
+}
+
+/* "Hi, username" greeting shown when logged in */
+.nav__greeting {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  color: var(--color-text-muted);
+}
+
+/* Logout link — Dracula pink */
+.nav__link--logout {
+  color: #FF79C6;
 }
 
 
@@ -485,8 +497,23 @@ a:hover {
   border-color: var(--color-green);
 }
 
+.auth__errors {
+  /* Shown on register when multiple validation errors exist */
+  list-style: none;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.auth__errors li {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--color-error);
+}
+
 .auth__error {
-  /* Shown when login fails */
+  /* Shown when login fails — single message */
   font-family: var(--font-mono);
   font-size: 0.9rem;
   color: var(--color-error);
