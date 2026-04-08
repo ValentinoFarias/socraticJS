@@ -11,3 +11,6 @@ db_data/
 # Editor folders
 .vscode/
 .idea/
+
+#Claude guidelines
+CLAUDE.md
