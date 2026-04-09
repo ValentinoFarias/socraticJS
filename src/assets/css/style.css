@@ -12,6 +12,7 @@
 
   /* Neutrals (dark mode base) */
   --color-bg: #282a36;            /* Dracula dark background */
+  --color-bg-light: #F8F8F2;      /* Dracula foreground — off-white, used as light surface */
   --color-surface: #1A1A1A;
   --color-surface-2: #242424;
   --color-border: #2E2E2E;
@@ -411,28 +412,297 @@ a:hover {
 
 /* =============================================================================
    Console Page  (console.php)
-   Coding challenge interface.
+   Three-panel coding challenge: HTML editor, JS editor, live preview, output.
+   All widget classes are prefixed with "c-" to avoid conflicts with other pages.
    ============================================================================= */
 
-.console__topic {
-  /* "You have selected Variables" — green, centred below the nav */
+/* Override the dark body background for the console page only */
+.page--console {
+  background: var(--color-bg-light);
+}
+
+/* "about" nav link uses Dracula pink on the console page */
+.page--console .nav__link {
+  color: #FF79C6;
+}
+
+/* Outer layout — centred column, capped width for readability */
+.console__layout {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+/* ── Task card ────────────────────────────────────────────────────── */
+
+.c-task-card {
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+/* "Phase X.X — Topic name" label above the task body */
+.c-task-title {
   font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+/* Study / Real mode badge shown next to the phase label */
+.c-mode-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Study mode badge — muted/neutral */
+.c-mode-study {
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  border: 0.5px solid var(--color-border);
+}
+
+/* Real mode badge — blue tint matching --color-console */
+.c-mode-real {
+  background: rgba(14, 165, 233, 0.15);
+  color: var(--color-console-light);
+  border: 0.5px solid var(--color-console);
+}
+
+/* The step-by-step task instructions */
+.c-task-body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.c-task-body p {
+  margin-bottom: 8px;
+}
+
+.c-task-body ol {
+  padding-left: 1.2rem;
+  margin-top: 6px;
+}
+
+.c-task-body li {
+  margin: 4px 0;
+}
+
+/* Inline code snippets inside task descriptions */
+.c-task-body code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--color-bg);
+  border: 0.5px solid var(--color-border);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+/* ── Toolbars ─────────────────────────────────────────────────────── */
+
+/* Main toolbar above the panels: hint text left, Run/Reset buttons right */
+.c-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* Footer toolbar inside the JS panel: hint text left, Review button right */
+.c-js-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  border-top: 0.5px solid var(--color-border);
+}
+
+/* Muted helper text in both toolbars */
+.c-toolbar__hint {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* Flex spacer — pushes buttons to the right */
+.c-spacer { flex: 1; }
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+
+/* Shared base — monospace font, consistent sizing */
+.c-btn {
+  font-family: var(--font-mono);
+  font-size: 13px;
   font-weight: 700;
-  font-size: 1.75rem;
-  color: var(--color-green);
+  padding: 7px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.c-btn:hover { opacity: 0.8; }
+
+/* Run — filled green (brand accent) */
+.c-btn--run {
+  background: var(--color-green);
+  color: #0F0F0F;
+}
+
+/* Reset — subtle surface style */
+.c-btn--reset {
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+/* Review — ghost style using the console blue */
+.c-btn--review {
+  background: transparent;
+  color: var(--color-console-light);
+  border: 1px solid var(--color-console);
+  font-size: 12px;
+}
+
+/* ── Panels (HTML, JS, Preview, Output share this chrome) ────────── */
+
+.c-panel {
+  border: 0.5px solid var(--color-border);
+  border-radius: 6px;
+  overflow: hidden;   /* clips CodeMirror corners neatly */
+  margin-bottom: 12px;
+}
+
+/* Panel header bar: dot + filename label */
+.c-panel-header {
+  background: var(--color-surface);
+  padding: 7px 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  border-bottom: 0.5px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Coloured traffic-light dots in panel headers */
+.c-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.c-dot--html { background: #E24B4A; }  /* red   — HTML panel   */
+.c-dot--js   { background: #EF9F27; }  /* amber — JS panel     */
+.c-dot--out  { background: #1D9E75; }  /* green — output panel */
+
+/* ── CodeMirror sizing ───────────────────────────────────────────── */
+
+/* All editors share the same font settings */
+.c-panel .CodeMirror {
+  height: auto;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* HTML panel — 260px min-height */
+.c-panel .CodeMirror-scroll {
+  min-height: 260px;
+}
+
+/* JS panel — taller at 320px (more room to write logic) */
+#js-panel .CodeMirror-scroll {
+  min-height: 320px;
+}
+
+/* ── Preview iframe ──────────────────────────────────────────────── */
+
+/* White background so HTML pages render with their natural BG colour */
+.c-preview-wrap {
+  background: #ffffff;
+}
+
+.c-preview-wrap iframe {
+  width: 100%;
+  height: 70px;    /* compact in Study mode; more useful in Real/DOM mode */
+  border: none;
+  display: block;
+}
+
+/* ── Output panel ────────────────────────────────────────────────── */
+
+.c-output {
+  min-height: 120px;
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.8;
+  background: var(--color-bg);
+}
+
+/* Muted placeholder text shown before the first Run */
+.c-hint { color: var(--color-text-muted); }
+
+/* console.log output lines */
+.c-log--plain { color: var(--color-text); }
+
+/* Passing check text and icons */
+.c-log--ok    { color: var(--color-success); }
+
+/* Error text and failing check icons */
+.c-log--err   { color: var(--color-error); }
+
+/* Thin horizontal rule between log output and check results */
+.c-divider {
+  border: none;
+  border-top: 0.5px solid var(--color-border);
+  margin: 8px 0;
+}
+
+/* One row per auto-check: icon + label side by side */
+.c-check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  padding: 4px 0;
+}
+
+/* Fixed-width icon column so labels align cleanly */
+.c-check-icon {
+  font-size: 13px;
+  width: 18px;
   text-align: center;
-  padding: 48px 52px 0;
+  flex-shrink: 0;
 }
 
-.console__area {
-  padding: 40px 444px 64px;
-}
-
-.console__placeholder {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 1.5rem;
-  color: #ffffff;
+/* "All checks passed!" banner shown when every check is green */
+.c-success {
+  margin-top: 10px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-success);
 }
 
 
