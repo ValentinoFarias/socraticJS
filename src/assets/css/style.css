@@ -322,30 +322,211 @@ a:hover {
 
 /* =============================================================================
    Tutor Page  (tutor.php)
-   Chat interface with the Socratic tutor.
+   Full-viewport chat interface for the Socratic JS tutor.
    ============================================================================= */
 
-.tutor__topic {
-  /* "You have selected Variables" — green, centred below the nav */
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 1.75rem;
-  color: var(--color-green);
-  text-align: center;
-  padding: 48px 52px 0;
+/* Make the tutor page fill exactly one viewport — no page scroll.
+   The messages area scrolls internally instead. */
+.page--tutor {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.tutor__chat {
-  /* Chat area — left-aligned, matches Figma left offset */
-  padding: 40px 169px 64px;
+/* Centred column that fills the remaining height below the nav */
+.tutor__container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;          /* lets flex children shrink below their content size */
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px 24px 0;
 }
 
-.tutor__placeholder {
-  /* "Conversention starts here...." — white bold */
+/* ── Topic header ─────────────────────────────────────────────────── */
+
+/* Pill-shaped card showing the current phase and topic name */
+.tutor__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 0.5px solid var(--color-border);
+  border-radius: 8px;
+  padding: 10px 16px;
+  flex-shrink: 0;           /* never shrink — always visible above the messages */
+  margin-bottom: 0;
+}
+
+/* "Phase ?" label — muted, uppercase */
+.tutor__header-phase {
   font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Thin vertical divider between phase and topic */
+.tutor__header-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--color-border);
+  flex-shrink: 0;
+}
+
+/* Topic name — purple, bold */
+.tutor__header-topic {
+  font-family: var(--font-mono);
+  font-size: 14px;
   font-weight: 700;
-  font-size: 1.5rem;
+  color: var(--color-tutor);
+}
+
+/* ── Messages area ───────────────────────────────────────────────── */
+
+/* Scrollable column of message bubbles */
+.tutor__messages {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;            /* required for overflow-y to work inside a flex parent */
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 0;
+}
+
+/* One row = one turn in the conversation */
+.tutor__message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+/* User messages sit on the right */
+.tutor__message--user {
+  flex-direction: row-reverse;
+}
+
+/* ── Avatar ───────────────────────────────────────────────────────── */
+
+/* Purple circle with "JS" initials — shown next to tutor messages */
+.tutor__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-tutor);
   color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Bubbles ──────────────────────────────────────────────────────── */
+
+/* Shared bubble base — max 72% width so long messages don't span the full row */
+.tutor__bubble {
+  max-width: 72%;
+  padding: 12px 16px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+/* Tutor bubble: white card with a flat top-left corner (points toward avatar) */
+.tutor__message--ai .tutor__bubble {
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 0.5px solid var(--color-border);
+  border-radius: 4px 12px 12px 12px;
+}
+
+/* User bubble: solid purple with a flat top-right corner */
+.tutor__message--user .tutor__bubble {
+  background: var(--color-tutor);
+  color: #ffffff;
+  border-radius: 12px 4px 12px 12px;
+}
+
+/* Inline code in tutor messages — dark tint on white */
+.tutor__message--ai .tutor__bubble code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: rgba(0, 0, 0, 0.07);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+/* Inline code in user messages — light tint on purple */
+.tutor__message--user .tutor__bubble code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+/* ── Input area ───────────────────────────────────────────────────── */
+
+/* Pinned to the bottom of the container — never scrolls away */
+.tutor__input-area {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  padding: 16px 0 20px;
+  border-top: 0.5px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+/* Textarea: grows as the user types, caps at ~3 lines */
+#chat-input {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: #1a1a1a;
+  background: #ffffff;
+  border: 0.5px solid var(--color-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+  min-height: 44px;
+  max-height: 120px;
+  overflow-y: auto;
+  transition: border-color 0.15s;
+}
+
+#chat-input:focus {
+  border-color: var(--color-tutor);   /* purple ring on focus */
+}
+
+/* Send button: purple, fixed height to align with textarea baseline */
+#send-btn {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 0 20px;
+  height: 44px;
+  background: var(--color-tutor);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+#send-btn:hover {
+  opacity: 0.85;
 }
 
 
@@ -416,13 +597,15 @@ a:hover {
    All widget classes are prefixed with "c-" to avoid conflicts with other pages.
    ============================================================================= */
 
-/* Override the dark body background for the console page only */
-.page--console {
+/* Override the dark body background for the console and tutor pages */
+.page--console,
+.page--tutor {
   background: var(--color-bg-light);
 }
 
-/* "about" nav link uses Dracula pink on the console page */
-.page--console .nav__link {
+/* "about" nav link uses Dracula pink on both pages */
+.page--console .nav__link,
+.page--tutor .nav__link {
   color: #FF79C6;
 }
 
