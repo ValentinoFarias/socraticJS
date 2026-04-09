@@ -1,3 +1,5 @@
 build:
   docker:
-    web: docker/php/Dockerfile
+    web:
+      dockerfile: docker/php/Dockerfile
+      context: .
