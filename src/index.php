@@ -45,14 +45,16 @@ require_once __DIR__ . '/includes/functions.php';
   -->
   <div class="home__computers">
 
-    <div class="home__computer">
-      <img src="/assets/img/computer.png" alt="Retro computer">
-      <a class="home__computer-link" href="/study.php">study</a>
+    <div class="home__computer" style="--computer-label-top: 38%; --computer-label-left: 50%;">
+      <a class="home__computer-image-link" href="/study.php" aria-label="Go to study mode">
+        <img src="/assets/img/studyPC.png" alt="Study computer">
+      </a>
     </div>
 
-    <div class="home__computer">
-      <img src="/assets/img/computer.png" alt="Retro computer">
-      <a class="home__computer-link" href="/practice.php">practice</a>
+    <div class="home__computer" style="--computer-label-top: 38%; --computer-label-left: 50%;">
+      <a class="home__computer-image-link" href="/practice.php" aria-label="Go to practice mode">
+        <img src="/assets/img/practicePC.png" alt="Practice computer">
+      </a>
     </div>
 
   </div>

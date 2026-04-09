@@ -160,9 +160,15 @@ a:hover {
   position: relative;
   width: 420px;
   flex-shrink: 0;
+  --computer-label-top: 38%;
+  --computer-label-left: 50%;
 }
 
-.home__computer img {
+.home__computer-image-link {
+  display: block;
+}
+
+.home__computer-image-link img {
   /* Computer image fills the container width */
   width: 100%;
   height: auto;
@@ -173,18 +179,21 @@ a:hover {
   /* The label "Study" / "Practice" sits on top of the dark screen area.
      Positioned at ~38% from the top of the image to land on the screen. */
   position: absolute;
-  top: 38%;
-  left: 50%;
+  top: var(--computer-label-top);
+  left: var(--computer-label-left);
   transform: translate(-50%, -50%);
+  width: 55%;
+  text-align: center;
   font-family: var(--font-mono);
   font-size: 2rem;
   color: var(--color-green);
   text-decoration: none;
   white-space: nowrap;
+  pointer-events: none;
   transition: opacity 0.2s;
 }
 
-.home__computer-link:hover {
+.home__computer:hover .home__computer-link {
   opacity: 0.75;
   text-decoration: none;
 }
