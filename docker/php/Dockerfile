@@ -7,8 +7,10 @@ RUN docker-php-ext-install pdo pdo_mysql
 RUN apt-get update && apt-get install -y libcurl4-openssl-dev \
     && docker-php-ext-install curl
 
-# Disable conflicting MPM modules (keep prefork which is the default)
-RUN a2dismod mpm_event mpm_worker 2>/dev/null || true
+# Clean up any conflicting MPM modules and explicitly use prefork
+RUN rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf
+RUN ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load
+RUN ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
