@@ -86,11 +86,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // We NEVER store the plain-text password.
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
+        // Generate a UUID for the new user's primary key
+        $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x4000,
+            mt_rand(0, 0x3fff) | 0x8000,
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+        );
+
         // INSERT the new user. The ? placeholders are filled in safely by PDO.
         $stmt = $pdo->prepare(
-            'INSERT INTO user (username, email, password_hash) VALUES (?, ?, ?)'
+            'INSERT INTO user (id, username, email, password_hash) VALUES (?, ?, ?, ?)'
         );
-        $stmt->execute([$username, $email, $password_hash]);
+        $stmt->execute([$uuid, $username, $email, $password_hash]);
 
         // Account created — send the user to login so they can sign in
         redirect('/login.php');
