@@ -26,7 +26,7 @@ try {
 
     // 2. Insert all lesson rows
     $stmt = $pdo->prepare(
-        'INSERT INTO lesson (id, slug, mode, phase, title) VALUES (UUID(), ?, ?, ?, ?)'
+        'INSERT IGNORE INTO lesson (id, slug, mode, phase, title) VALUES (UUID(), ?, ?, ?, ?)'
     );
 
     $lessons = [
