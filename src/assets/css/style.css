@@ -348,6 +348,28 @@ a:hover {
 }
 
 
+
+/* Sticky note reminder — positioned on the right side with a rotation */
+.study__sticky-note {
+  position: fixed;
+  bottom: 80px;
+  right: 40px;
+  width: 200px;
+  padding: 16px;
+  font-family: 'Coming Soon', cursive;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+  background: #FFEB99;         /* Sticky note yellow */
+  border: 1px solid #FFD700;
+  border-radius: 2px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: rotate(-3deg);    /* Slight counter-clockwise angle */
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;        /* Don't interfere with page interactions */
+}
+
 /* =============================================================================
    Tutor Page  (tutor.php)
    Full-viewport chat interface for the Socratic JS tutor.

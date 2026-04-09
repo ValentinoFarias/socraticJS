@@ -13,7 +13,7 @@ require_login(); // Redirect to login.php if the user is not logged in
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Coming+Soon&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/assets/css/style.css">
 </head>
@@ -148,6 +148,11 @@ require_login(); // Redirect to login.php if the user is not logged in
     </details>
 
   </main>
+
+  <!-- Sticky note reminder -->
+  <div class="study__sticky-note">
+    Remember to check off the topics you have practiced!
+  </div>
 
   <script src="/assets/js/main.js"></script>
 
