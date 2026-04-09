@@ -6,6 +6,17 @@
 // Start the session if it hasn't been started yet.
 // Sessions let PHP remember who a user is across page requests.
 if (session_status() === PHP_SESSION_NONE) {
+    // Set secure cookie flags BEFORE starting the session.
+    // - secure:   cookie only sent over HTTPS (prevents sniffing on HTTP)
+    // - httponly:  cookie invisible to JavaScript (prevents XSS cookie theft)
+    // - samesite:  Lax = cookie sent on same-site requests + top-level navigations
+    session_set_cookie_params([
+        'lifetime' => 0,        // session cookie — expires when browser closes
+        'path'     => '/',
+        'secure'   => isset($_SERVER['HTTPS']),  // true on Heroku, false locally
+        'httponly'  => true,
+        'samesite' => 'Lax',
+    ]);
     session_start();
 }
 

@@ -5,6 +5,7 @@
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/csrf.php';
 
 // If already logged in there's nothing to do here — send them to study
 if (is_logged_in()) {
@@ -16,6 +17,7 @@ $old_email = '';  // re-fill the email field if login fails (never re-fill passw
 
 // ── Only run the login logic when the form is submitted ───────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify();
 
     $email    = trim($_POST['email']    ?? '');
     $password = $_POST['password']      ?? '';  // do NOT trim passwords
@@ -89,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?php endif; ?>
 
       <form action="" method="post">
+        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
 
         <div class="auth__group">
           <label class="auth__label" for="email">email</label>

@@ -5,6 +5,7 @@
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/rate_limit.php';
 
 // Only logged-in users can call this endpoint
 if (!is_logged_in()) {
@@ -12,6 +13,9 @@ if (!is_logged_in()) {
     echo json_encode(['error' => 'Not authenticated']);
     exit;
 }
+
+// Enforce rate limit — 20 requests per minute per session
+rate_limit(20, 60);
 
 // Only accept POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -28,6 +32,9 @@ $task_description = $body['task_description'] ?? '';
 $starter_html = $body['starter_html'] ?? '';
 $checks = $body['checks'] ?? [];
 $mode  = $body['mode'] ?? 'study';
+
+// Strip HTML tags so Claude reads clean text, not HTML entities
+$task_description = strip_tags($task_description);
 
 if (empty($code)) {
     http_response_code(400);

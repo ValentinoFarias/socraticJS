@@ -7,6 +7,7 @@
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/rate_limit.php';
 
 // Only logged-in users can call this endpoint
 if (!is_logged_in()) {
@@ -14,6 +15,9 @@ if (!is_logged_in()) {
     echo json_encode(['error' => 'Not authenticated']);
     exit;
 }
+
+// Enforce rate limit — 20 requests per minute per session
+rate_limit(20, 60);
 
 // Only accept POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -158,6 +162,23 @@ if ($exercise === null) {
     // Claude's response wasn't valid JSON — return it as raw text for debugging
     http_response_code(500);
     echo json_encode(['error' => 'Invalid exercise JSON from AI', 'raw' => $text]);
+    exit;
+}
+
+// Validate required fields — Claude sometimes omits them
+$required = ['task_title', 'task_description', 'checks'];
+foreach ($required as $field) {
+    if (empty($exercise[$field])) {
+        http_response_code(500);
+        echo json_encode(['error' => "Missing field: $field", 'raw' => $text]);
+        exit;
+    }
+}
+
+// Real mode must include starter HTML for DOM exercises
+if ($mode === 'real' && empty($exercise['starter_html'])) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Real mode exercise missing starter_html']);
     exit;
 }
 

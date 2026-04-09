@@ -5,10 +5,11 @@
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/csrf.php';
 
 // If the user is already logged in, no point being here — send them to study
 if (is_logged_in()) {
-    redirect('/study.php');
+    redirect('/index.php');
 }
 
 // $errors collects every validation problem found so we can show them all at once
@@ -20,6 +21,7 @@ $old = ['username' => '', 'email' => ''];
 
 // ── Only run the registration logic when the form is submitted ─────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify();
 
     // Collect raw input from the form
     // trim() removes accidental leading/trailing spaces from text fields
@@ -86,14 +88,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // We NEVER store the plain-text password.
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-        // Generate a UUID for the new user's primary key
-        $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-            mt_rand(0, 0xffff), mt_rand(0, 0xffff),
-            mt_rand(0, 0xffff),
-            mt_rand(0, 0x0fff) | 0x4000,
-            mt_rand(0, 0x3fff) | 0x8000,
-            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
-        );
+        // Generate a UUID v4 using cryptographically secure random bytes.
+        // The Heroku DB doesn't have DEFAULT (UUID()), so PHP generates it.
+        $bytes = random_bytes(16);
+        $bytes[6] = chr(ord($bytes[6]) & 0x0f | 0x40); // version 4
+        $bytes[8] = chr(ord($bytes[8]) & 0x3f | 0x80); // variant RFC 4122
+        $uuid = vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($bytes), 4));
 
         // INSERT the new user. The ? placeholders are filled in safely by PDO.
         $stmt = $pdo->prepare(
@@ -152,6 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?php endif; ?>
 
       <form action="" method="post">
+        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
 
         <div class="auth__group">
           <label class="auth__label" for="username">username</label>

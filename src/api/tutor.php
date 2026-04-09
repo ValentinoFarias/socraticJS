@@ -6,6 +6,7 @@ header('Content-Type: application/json');
 
 // auth.php lives one level up in includes/
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/rate_limit.php';
 
 // Only logged-in users can call this endpoint
 if (!is_logged_in()) {
@@ -13,6 +14,9 @@ if (!is_logged_in()) {
     echo json_encode(['error' => 'Not authenticated']);
     exit;
 }
+
+// Enforce rate limit — 20 requests per minute per session
+rate_limit(20, 60);
 
 // Only accept POST — reject everything else
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
