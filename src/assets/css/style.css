@@ -164,6 +164,26 @@ a:hover {
   --computer-label-left: 50%;
 }
 
+/* Hide the real cursor when hovering the Study / Practice computers */
+.home__computer--study:hover,
+.home__computer--study:hover a,
+.home__computer--study:hover img,
+.home__computer--practice:hover,
+.home__computer--practice:hover a,
+.home__computer--practice:hover img {
+  cursor: none !important;
+}
+
+/* The red pill image that follows the mouse */
+.custom-cursor {
+  position: fixed;
+  width: 100px;
+  height: 100px;
+  pointer-events: none;   /* So it never blocks clicks or hover detection */
+  z-index: 9999;
+  display: none;           /* Hidden by default, shown via JS on hover */
+}
+
 .home__computer-image-link {
   display: block;
 }

@@ -22,3 +22,31 @@ document.addEventListener('DOMContentLoaded', function () {
     // if history.length is 1, the default href="/index.php" fires normally
   });
 });
+
+// ── Custom cursors for the Study & Practice computers ──────────
+// Shows a pill image that follows the mouse when hovering
+// over each computer on the landing page.
+// Red pill → Study, Blue pill → Practice.
+(function () {
+  // Each entry pairs a computer element with its cursor image
+  var pairs = [
+    { pc: '.home__computer--study',    cursor: '.custom-cursor--study' },
+    { pc: '.home__computer--practice', cursor: '.custom-cursor--practice' }
+  ];
+
+  pairs.forEach(function (pair) {
+    var pc     = document.querySelector(pair.pc);
+    var cursor = document.querySelector(pair.cursor);
+    if (!pc || !cursor) return;
+
+    pc.addEventListener('mousemove', function (e) {
+      cursor.style.display = 'block';
+      cursor.style.left = (e.clientX - 50) + 'px';
+      cursor.style.top  = (e.clientY - 50) + 'px';
+    });
+
+    pc.addEventListener('mouseleave', function () {
+      cursor.style.display = 'none';
+    });
+  });
+})();

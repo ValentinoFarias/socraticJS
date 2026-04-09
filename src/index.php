@@ -45,19 +45,23 @@ require_once __DIR__ . '/includes/functions.php';
   -->
   <div class="home__computers">
 
-    <div class="home__computer" style="--computer-label-top: 38%; --computer-label-left: 50%;">
+    <div class="home__computer home__computer--study" style="--computer-label-top: 38%; --computer-label-left: 50%;">
       <a class="home__computer-image-link" href="/study.php" aria-label="Go to study mode">
-        <img src="/assets/img/studyPC.png" alt="Study computer">
+        <img src="/assets/img/studyPC.webp" alt="Study computer">
       </a>
     </div>
 
-    <div class="home__computer" style="--computer-label-top: 38%; --computer-label-left: 50%;">
+    <div class="home__computer home__computer--practice" style="--computer-label-top: 38%; --computer-label-left: 50%;">
       <a class="home__computer-image-link" href="/practice.php" aria-label="Go to practice mode">
-        <img src="/assets/img/practicePC.png" alt="Practice computer">
+        <img src="/assets/img/practicePC.webp" alt="Practice computer">
       </a>
     </div>
 
   </div>
+
+  <!-- Custom cursor images (follow mouse over each computer) -->
+  <img class="custom-cursor custom-cursor--study" src="/assets/img/redpill.png" alt="">
+  <img class="custom-cursor custom-cursor--practice" src="/assets/img/bluepill.png" alt="">
 
   <script src="/assets/js/main.js"></script>
 </body>
