@@ -9,6 +9,137 @@ require_login();
 // e.g. "what-is-a-variable" → "What Is A Variable"
 $slug  = isset($_GET['topic']) ? $_GET['topic'] : '';
 $topic = $slug !== '' ? ucwords(str_replace('-', ' ', $slug)) : 'Unknown Topic';
+
+// Match the selected topic slug to the roadmap phase shown in study.php.
+$phase_topics = [
+  1 => [
+    'what-is-a-variable',
+    'let',
+    'const',
+    'var',
+    'hoisting',
+    'naming-rules',
+    'primitives',
+    'null-vs-undefined',
+    'typeof',
+    'type-coercion',
+    'template-literals',
+    'symbol-bigint',
+    'arithmetic',
+    'assignment',
+    'equality',
+    'logical',
+    'nullish-optional',
+    'increment',
+  ],
+  2 => [
+    'if-else',
+    'else-if',
+    'switch',
+    'ternary',
+    'for-loop',
+    'while-loop',
+    'do-while',
+    'for-of',
+    'for-in',
+    'break',
+    'continue',
+  ],
+  3 => [
+    'function-declarations',
+    'function-expressions',
+    'arrow-functions',
+    'parameters',
+    'default-parameters',
+    'return',
+    'scope-local-global',
+    'block-scope',
+    'callbacks',
+    'higher-order',
+    'pure-functions',
+    'iife',
+  ],
+  4 => [
+    'arrays-basics',
+    'push-pop',
+    'foreach',
+    'map',
+    'filter',
+    'reduce',
+    'find',
+    'includes-indexof',
+    'key-value',
+    'dot-bracket',
+    'add-delete-props',
+    'for-in-objects',
+    'object-methods',
+    'destructuring',
+    'spread',
+    'rest',
+  ],
+  5 => [
+    'what-is-dom',
+    'getelementbyid',
+    'queryselector',
+    'textcontent',
+    'innerhtml',
+    'style-prop',
+    'classlist',
+    'createelement',
+    'appendchild',
+    'remove',
+    'addeventlistener',
+    'click-input-submit',
+    'event-object',
+    'preventdefault',
+    'event-delegation',
+    'remove-listener',
+  ],
+  6 => [
+    'what-is-async',
+    'call-stack',
+    'settimeout',
+    'setinterval',
+    'cleartimer',
+    'what-is-promise',
+    'then-catch',
+    'promise-all',
+    'promise-race',
+    'async-functions',
+    'await',
+    'try-catch-async',
+    'fetch',
+    'json',
+  ],
+  7 => [
+    'closures',
+    'this',
+    'call-apply-bind',
+    'prototypes',
+    'classes',
+    'inheritance',
+    'event-loop',
+    'microtasks',
+    'es-modules',
+    'default-named-exports',
+    'npm',
+    'bundlers',
+    'generators',
+    'weakmap',
+    'proxy',
+    'try-catch-finally',
+    'design-patterns',
+    'memory',
+  ],
+];
+
+$phase = 'Phase ?';
+foreach ($phase_topics as $number => $topics) {
+  if (in_array($slug, $topics, true)) {
+    $phase = 'Phase ' . $number;
+    break;
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -45,7 +176,7 @@ $topic = $slug !== '' ? ucwords(str_replace('-', ' ', $slug)) : 'Unknown Topic';
 
     <!-- Topic header: shows current phase and topic at a glance -->
     <div class="tutor__header">
-      <span class="tutor__header-phase">Phase ?</span>
+      <span class="tutor__header-phase"><?= h($phase) ?></span>
       <div class="tutor__header-divider"></div>
       <span class="tutor__header-topic"><?= h($topic) ?></span>
     </div>
