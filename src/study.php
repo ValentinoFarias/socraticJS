@@ -37,7 +37,7 @@ require_login(); // Redirect to login.php if the user is not logged in
   </nav>
 
   <!-- ── Page subtitle ──────────────────────────────────────────── -->
-  <p class="study__subtitle">Select topic to start a discusion</p>
+  <p class="study__subtitle">Select a topic to start a discussion</p>
 
   <!-- ── Roadmap — all 7 phases ─────────────────────────────────── -->
   <!--
@@ -325,7 +325,8 @@ require_login(); // Redirect to login.php if the user is not logged in
     // Ticks every checkbox whose slug appears in the response.
     async function loadProgress() {
       try {
-        var res  = await fetch('/api/progress.php');
+        // ?mode=study tells the API to query the study_progress table
+        var res  = await fetch('/api/progress.php?mode=study');
         var data = await res.json();
         var studied = data.studied || [];   // array of slugs the user completed
 
@@ -355,7 +356,7 @@ require_login(); // Redirect to login.php if the user is not logged in
         await fetch('/api/progress.php', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ slug: slug, studied: studied }),
+          body:    JSON.stringify({ slug: slug, studied: studied, mode: 'study' }),
         });
       } catch (e) {
         console.warn('Could not save progress to server:', e);

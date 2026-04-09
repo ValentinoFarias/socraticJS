@@ -53,6 +53,7 @@ RESPONSE FORMAT (strict — follow exactly):
   "checks": [
     { "label": "Human-readable check description", "js_expression": "JS boolean expression" }
   ],
+  "solution_code": "JavaScript code that solves the task — clean, educational, ES5 syntax",
   "next_hint": "A suggestion for what to try next"
 }
 
@@ -61,6 +62,7 @@ FIELD RULES:
 - task_description: Use HTML tags: <p>, <ol>, <li>, <code>, <strong>. Keep it brief — 1 sentence + 3 numbered steps.
 - starter_html: For REAL mode only — include 3-5 meaningful HTML elements the learner will target. For STUDY mode set this to null.
 - checks: 3-5 per exercise. At least one behavioral check (does it actually produce the right result?), not just code patterns.
+- solution_code: Clean, educational JavaScript code that solves the task. Use ES5 syntax. Include comments explaining the approach. Keep it concise.
 - next_hint: One sentence — what the learner could try next after solving this.
 
 MODES:

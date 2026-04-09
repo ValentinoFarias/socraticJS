@@ -195,7 +195,8 @@ require_login(); // Redirect to login.php if the user is not logged in
     // Ticks every checkbox whose slug appears in the response.
     async function loadProgress() {
       try {
-        var res  = await fetch('/api/progress.php');
+        // ?mode=practice tells the API to query the practice_progress table
+        var res  = await fetch('/api/progress.php?mode=practice');
         var data = await res.json();
         var studied = data.studied || [];
 
@@ -222,7 +223,7 @@ require_login(); // Redirect to login.php if the user is not logged in
         await fetch('/api/progress.php', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ slug: slug, studied: studied }),
+          body:    JSON.stringify({ slug: slug, studied: studied, mode: 'practice' }),
         });
       } catch (e) {
         console.warn('Could not save progress to server:', e);

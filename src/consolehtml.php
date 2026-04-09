@@ -109,6 +109,7 @@ $starter_html = implode("\n", [
       <div class="c-js-toolbar">
         <span class="c-toolbar__hint">Done writing?</span>
         <div class="c-spacer"></div>
+        <button class="c-btn c-btn--secondary" id="show-answer-btn">Show answer</button>
         <button class="c-btn c-btn--review" id="review-btn">Review my code ↗</button>
       </div>
     </div>
@@ -322,6 +323,11 @@ $starter_html = implode("\n", [
     // Each entry has { label, js_expression } — evaluated via new Function().
     var CHECKS = [];
 
+    // Full exercise context — stored when loadExercise() completes.
+    // Used by the review button to provide Claude with the complete picture
+    // (task, HTML, checks) so feedback is actually helpful.
+    var currentExercise = {};
+
     function runChecks(doc, code, logs) {
       return CHECKS.map(function (c) {
         var pass = false;
@@ -355,6 +361,16 @@ $starter_html = implode("\n", [
       preview.srcdoc = getIframeTemplate();
     });
 
+    // Show answer — populate the JS editor with the solution code
+    document.getElementById('show-answer-btn').addEventListener('click', function () {
+      if (!currentExercise.solution_code) {
+        output.innerHTML = '<span class="c-hint">Solution not available for this exercise.</span>';
+        return;
+      }
+      jsEditor.setValue(currentExercise.solution_code);
+      output.innerHTML = '<span class="c-hint">Solution loaded. Click <strong>Run</strong> to see it work.</span>';
+    });
+
     document.getElementById('review-btn').addEventListener('click', async function () {
       var code = jsEditor.getValue().trim();
       if (!code) {
@@ -363,10 +379,20 @@ $starter_html = implode("\n", [
       }
       output.innerHTML = '<span class="c-hint">Getting AI feedback…</span>';
       try {
+        // Send the full exercise context to the review API so Claude has the complete picture.
+        // This includes the task, HTML, and check rules — not just the code.
         var res  = await fetch('/api/review.php', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ code: code, topic: <?= json_encode($topic) ?> }),
+          body:    JSON.stringify({
+            code: code,
+            topic: <?= json_encode($topic) ?>,
+            task_title: currentExercise.task_title,
+            task_description: currentExercise.task_description,
+            starter_html: currentExercise.starter_html,
+            checks: currentExercise.checks,
+            mode: 'real'
+          }),
         });
         var data     = await res.json();
         var feedback = data.content?.[0]?.text ?? 'Could not get feedback.';
@@ -413,6 +439,10 @@ $starter_html = implode("\n", [
 
         // If the API returned an error object, show a fallback
         if (exercise.error) throw new Error(exercise.error);
+
+        // Store the full exercise context so the review button can send it to Claude
+        // This gives the tutor the complete picture: task, HTML, and checks.
+        currentExercise = exercise;
 
         titleEl.innerHTML = esc(exercise.task_title || '<?= h($topic) ?>') +
           ' <span class="c-mode-badge c-mode-real">🌐 Real</span>';

@@ -31,8 +31,9 @@ function require_login(): void {
 /**
  * Log in a user by storing their ID and username in the session.
  * Call this after verifying credentials in login.php.
+ * $id is a UUID string (CHAR(36)) from the user table.
  */
-function login_user(int $id, string $username): void {
+function login_user(string $id, string $username): void {
     // Regenerate session ID after login — prevents session fixation attacks
     session_regenerate_id(true);
     $_SESSION['user_id']  = $id;

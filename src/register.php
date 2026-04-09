@@ -63,14 +63,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Check if this username is already taken.
         // We use a prepared statement — NEVER put $username directly in the SQL string.
         // Prepared statements separate the query from the data, preventing SQL injection.
-        $stmt = $pdo->prepare('SELECT id FROM users WHERE username = ?');
+        $stmt = $pdo->prepare('SELECT id FROM user WHERE username = ?');
         $stmt->execute([$username]);
         if ($stmt->fetch()) {
             $errors[] = 'That username is already taken.';
         }
 
         // Check if this email is already registered
-        $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
+        $stmt = $pdo->prepare('SELECT id FROM user WHERE email = ?');
         $stmt->execute([$email]);
         if ($stmt->fetch()) {
             $errors[] = 'An account with that email already exists.';
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // INSERT the new user. The ? placeholders are filled in safely by PDO.
         $stmt = $pdo->prepare(
-            'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)'
+            'INSERT INTO user (username, email, password_hash) VALUES (?, ?, ?)'
         );
         $stmt->execute([$username, $email, $password_hash]);
 

@@ -1,7 +1,7 @@
 <?php
 // api/review.php — AI code review for the JS Console "Review my code" button.
-// Receives the learner's code + topic, asks Claude for Socratic feedback,
-// and returns the response as JSON.
+// Receives the learner's code + full exercise context (task, HTML, checks),
+// asks Claude for Socratic feedback with full context, and returns the response.
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../includes/auth.php';
@@ -23,6 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $body  = json_decode(file_get_contents('php://input'), true);
 $code  = $body['code']  ?? '';
 $topic = $body['topic'] ?? 'JavaScript';
+$task_title = $body['task_title'] ?? '';
+$task_description = $body['task_description'] ?? '';
+$starter_html = $body['starter_html'] ?? '';
+$checks = $body['checks'] ?? [];
+$mode  = $body['mode'] ?? 'study';
 
 if (empty($code)) {
     http_response_code(400);
@@ -32,25 +37,57 @@ if (empty($code)) {
 
 $api_key = getenv('ANTHROPIC_API_KEY');
 
-// Build a single-turn message that gives Claude the context it needs.
-// We embed the code in a fenced code block so Claude reads it as code.
-// Using heredoc avoids messy string concatenation with quotes inside.
+// ── Build the system prompt with full context ──────────────────────────────
+// This prompt tells Claude what its role is and what to focus on.
+$system_prompt = <<<'PROMPT'
+You are a patient, encouraging JavaScript tutor using the Socratic method.
+Review the learner's code in the context of the task they were given.
+
+Your job:
+1. Check if the code actually solves the task (does it work?)
+2. Point out any logic errors or misconceptions
+3. Ask 1-2 guiding questions to help them discover improvements themselves
+
+NEVER give direct fixes or complete the code for them. Keep your response
+under 150 words. Be encouraging — celebrate what they did right!
+PROMPT;
+
+// ── Build the user message with the full exercise context ───────────────────
+// This gives Claude the complete picture: task, HTML/requirements, checks, code.
+$checks_text = '';
+if (!empty($checks)) {
+    $checks_text = "✓ The code should pass these checks:\n";
+    foreach ($checks as $check) {
+        $checks_text .= "  - " . htmlspecialchars($check['label'] ?? '') . "\n";
+    }
+}
+
+// For Real mode, show the HTML structure; for Study mode, just show requirements.
+$context_html = '';
+if ($mode === 'real' && !empty($starter_html)) {
+    $context_html = "\nHTML structure they can interact with:\n```html\n" .
+                    htmlspecialchars($starter_html) . "\n```\n";
+}
+
 $user_message = <<<MSG
-The learner is practicing the topic: "$topic".
+TASK: {$task_title}
 
-Here is their code:
+{$task_description}
+{$context_html}
+{$checks_text}
 
+Their code:
 ```javascript
-$code
+{$code}
 ```
 
-Give brief Socratic feedback — don't fix their code, ask 1-2 guiding questions that help them spot issues or improve it themselves. Keep your response under 150 words.
+Review this code. Does it solve the task? Ask guiding questions to help them improve.
 MSG;
 
 $payload = json_encode([
     'model'      => 'claude-sonnet-4-20250514',
     'max_tokens' => 400,
-    'system'     => 'You are a Socratic JavaScript tutor. Never give direct answers. Ask short, guiding questions that help beginners discover improvements themselves.',
+    'system'     => $system_prompt,
     'messages'   => [
         ['role' => 'user', 'content' => $user_message],
     ],

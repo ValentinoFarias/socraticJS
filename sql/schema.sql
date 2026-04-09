@@ -6,8 +6,10 @@
 --   phase  (7 phases of the JS roadmap)
 --     └── topic   (collapsible groups, e.g. "Variables", "Data Types")
 --           └── lesson  (individual checkable items, e.g. "What is a variable?")
---                 ├── [study mode]    → user_progress (studied checkbox)
---                 └── [practice mode] → exercise → attempt → ai_review
+--                 └── user_progress  (studied / practiced checkbox)
+--
+-- Exercises are generated dynamically by the Claude API (api/exercise.php),
+-- NOT stored in the database.
 -- =============================================================================
 
 USE jstutor;
@@ -62,97 +64,45 @@ CREATE TABLE IF NOT EXISTS topic (
 CREATE TABLE IF NOT EXISTS lesson (
   id          CHAR(36)                  NOT NULL DEFAULT (UUID()) PRIMARY KEY,
   topic_id    CHAR(36)                  NOT NULL,
-  slug        VARCHAR(100)              NOT NULL UNIQUE,
+  slug        VARCHAR(100)              NOT NULL,
   title       VARCHAR(200)              NOT NULL,
   order_index INT                       NOT NULL DEFAULT 0,
   mode        ENUM('study', 'practice') NOT NULL DEFAULT 'study',
+  UNIQUE KEY uq_slug_mode (slug, mode),           -- same slug can exist in both modes
   FOREIGN KEY (topic_id) REFERENCES topic(id)
 );
 
 -- =============================================================================
--- EXERCISE
--- A coding challenge for a practice-mode lesson.
--- starter_html / starter_js: pre-filled code shown in the editor on load.
--- next_exercise_hint: hint shown after the learner passes all checks.
+-- STUDY_PROGRESS
+-- Tracks which study-mode lessons a user has completed (study.php checkboxes).
+-- One row per (user, lesson). Only links to lessons with mode='study'.
 -- =============================================================================
-CREATE TABLE IF NOT EXISTS exercise (
-  id                 CHAR(36)     NOT NULL DEFAULT (UUID()) PRIMARY KEY,
-  lesson_id          CHAR(36)     NOT NULL,
-  title              VARCHAR(150) NOT NULL,
-  task_description   TEXT         NOT NULL,
-  starter_html       TEXT         NULL,
-  starter_js         TEXT         NULL,
-  difficulty         VARCHAR(50)  NOT NULL DEFAULT 'beginner',
-  next_exercise_hint TEXT         NULL,
-  FOREIGN KEY (lesson_id) REFERENCES lesson(id)
-);
-
--- =============================================================================
--- CHECK_RULE
--- Auto-grading rules for an exercise.
--- js_expression is evaluated as a boolean inside the preview iframe sandbox.
--- Example: /console\.log\s*\(/.test(code)
--- =============================================================================
-CREATE TABLE IF NOT EXISTS check_rule (
-  id            CHAR(36)     NOT NULL DEFAULT (UUID()) PRIMARY KEY,
-  exercise_id   CHAR(36)     NOT NULL,
-  order_index   INT          NOT NULL DEFAULT 0,
-  label         VARCHAR(200) NOT NULL,   -- shown to the learner, e.g. "Used console.log"
-  js_expression TEXT         NOT NULL,   -- evaluated to true/false
-  FOREIGN KEY (exercise_id) REFERENCES exercise(id)
-);
-
--- =============================================================================
--- USER_PROGRESS
--- Tracks which lessons a user has studied — one row per (user, lesson).
--- status lifecycle: not_started → in_progress → complete
--- studied_at: set when the user checks the "mark as studied" checkbox.
--- =============================================================================
-CREATE TABLE IF NOT EXISTS user_progress (
+CREATE TABLE IF NOT EXISTS study_progress (
   id         CHAR(36)                                       NOT NULL DEFAULT (UUID()) PRIMARY KEY,
   user_id    CHAR(36)                                       NOT NULL,
   lesson_id  CHAR(36)                                       NOT NULL,
   status     ENUM('not_started', 'in_progress', 'complete') NOT NULL DEFAULT 'not_started',
   studied_at DATETIME NULL,
-  UNIQUE KEY uq_user_lesson (user_id, lesson_id),
+  UNIQUE KEY uq_study_user_lesson (user_id, lesson_id),
   FOREIGN KEY (user_id)   REFERENCES user(id),
   FOREIGN KEY (lesson_id) REFERENCES lesson(id)
 );
 
 -- =============================================================================
--- ATTEMPT
--- A learner's code submission for a practice exercise.
--- passed = TRUE when checks_passed === checks_total (all rules green).
+-- PRACTICE_PROGRESS
+-- Tracks which practice-mode lessons a user has completed (practice.php checkboxes).
+-- One row per (user, lesson). Only links to lessons with mode='practice'.
 -- =============================================================================
-CREATE TABLE IF NOT EXISTS attempt (
-  id             CHAR(36) NOT NULL DEFAULT (UUID()) PRIMARY KEY,
-  user_id        CHAR(36) NOT NULL,
-  exercise_id    CHAR(36) NOT NULL,
-  submitted_js   TEXT     NOT NULL,
-  submitted_html TEXT     NULL,
-  passed         BOOLEAN  NOT NULL DEFAULT FALSE,
-  checks_passed  INT      NOT NULL DEFAULT 0,
-  checks_total   INT      NOT NULL DEFAULT 0,
-  submitted_at   DATETIME NOT NULL DEFAULT NOW(),
-  FOREIGN KEY (user_id)     REFERENCES user(id),
-  FOREIGN KEY (exercise_id) REFERENCES exercise(id)
+CREATE TABLE IF NOT EXISTS practice_progress (
+  id           CHAR(36)                                       NOT NULL DEFAULT (UUID()) PRIMARY KEY,
+  user_id      CHAR(36)                                       NOT NULL,
+  lesson_id    CHAR(36)                                       NOT NULL,
+  status       ENUM('not_started', 'in_progress', 'complete') NOT NULL DEFAULT 'not_started',
+  practiced_at DATETIME NULL,
+  UNIQUE KEY uq_practice_user_lesson (user_id, lesson_id),
+  FOREIGN KEY (user_id)   REFERENCES user(id),
+  FOREIGN KEY (lesson_id) REFERENCES lesson(id)
 );
-
--- =============================================================================
--- AI_REVIEW
--- Claude's Socratic feedback on a specific attempt.
--- One review per attempt (UNIQUE constraint on attempt_id).
--- score: 0–100 quality score from the model.
--- =============================================================================
-CREATE TABLE IF NOT EXISTS ai_review (
-  id                CHAR(36) NOT NULL DEFAULT (UUID()) PRIMARY KEY,
-  attempt_id        CHAR(36) NOT NULL UNIQUE,
-  feedback_markdown TEXT     NOT NULL,
-  score             INT      NOT NULL DEFAULT 0,
-  generated_at      DATETIME NOT NULL DEFAULT NOW(),
-  FOREIGN KEY (attempt_id) REFERENCES attempt(id)
-);
-
 
 -- =============================================================================
 -- SEED DATA
@@ -379,3 +329,83 @@ INSERT INTO lesson (id, topic_id, slug, title, order_index, mode) VALUES
   (UUID(), @t17, 'try-catch-finally','try / catch / finally',                   4, 'study'),
   (UUID(), @t17, 'design-patterns',  'Design patterns in JavaScript',           5, 'study'),
   (UUID(), @t17, 'memory',           'Memory management & garbage collection',  6, 'study');
+
+
+-- =============================================================================
+-- PRACTICE-MODE LESSONS
+-- Every slug used in practice.php needs a mode='practice' row so that
+-- practice_progress can reference it independently from study_progress.
+-- Some slugs match study-mode exactly; others differ (noted inline).
+-- =============================================================================
+
+-- Phase 1 — The Very Basics
+INSERT INTO lesson (id, topic_id, slug, title, order_index, mode) VALUES
+  (UUID(), @t1, 'variables-let-const', 'Variables — let/const',              1, 'practice'),
+  (UUID(), @t2, 'typeof',              'typeof',                             2, 'practice'),
+  (UUID(), @t2, 'type-coercion',       'Type coercion',                      3, 'practice'),
+  (UUID(), @t2, 'template-literals',   'Template literals',                  4, 'practice'),
+  (UUID(), @t3, 'equality',            '== vs ===',                          5, 'practice'),
+  (UUID(), @t3, 'nullish-coalescing',  'Nullish coalescing ??',              6, 'practice');
+
+-- Phase 2 — Control Flow
+INSERT INTO lesson (id, topic_id, slug, title, order_index, mode) VALUES
+  (UUID(), @t4, 'if-else',    'if / else',          1, 'practice'),
+  (UUID(), @t4, 'switch',     'switch',             2, 'practice'),
+  (UUID(), @t4, 'ternary',    'Ternary operator',   3, 'practice'),
+  (UUID(), @t5, 'for-loop',   'for loop',           4, 'practice'),
+  (UUID(), @t5, 'while-loop', 'while loop',         5, 'practice'),
+  (UUID(), @t5, 'for-of',     'for...of',           6, 'practice'),
+  (UUID(), @t5, 'for-in',     'for...in',           7, 'practice');
+
+-- Phase 3 — Functions
+INSERT INTO lesson (id, topic_id, slug, title, order_index, mode) VALUES
+  (UUID(), @t6, 'function-declaration', 'Function declaration',   1, 'practice'),
+  (UUID(), @t6, 'function-expression',  'Function expression',    2, 'practice'),
+  (UUID(), @t6, 'arrow-functions',      'Arrow functions',        3, 'practice'),
+  (UUID(), @t6, 'default-parameters',   'Default parameters',     4, 'practice'),
+  (UUID(), @t6, 'return',               'Return statement',       5, 'practice'),
+  (UUID(), @t7, 'callbacks',            'Callback functions',     6, 'practice'),
+  (UUID(), @t7, 'scope',                'Scope',                  7, 'practice');
+
+-- Phase 4 — Arrays & Objects
+INSERT INTO lesson (id, topic_id, slug, title, order_index, mode) VALUES
+  (UUID(), @t8, 'arrays-basics',    'Creating arrays',              1, 'practice'),
+  (UUID(), @t8, 'push-pop',         'push / pop / shift / unshift', 2, 'practice'),
+  (UUID(), @t8, 'foreach',          'forEach',                      3, 'practice'),
+  (UUID(), @t8, 'map',              'map',                          4, 'practice'),
+  (UUID(), @t8, 'filter',           'filter',                       5, 'practice'),
+  (UUID(), @t8, 'reduce',           'reduce',                       6, 'practice'),
+  (UUID(), @t9, 'objects-key-value', 'Objects — key/value',         7, 'practice'),
+  (UUID(), @t9, 'object-methods',   'Object.keys/values/entries',   8, 'practice'),
+  (UUID(), @t9, 'destructuring',    'Destructuring',                9, 'practice'),
+  (UUID(), @t9, 'spread',           'Spread operator',             10, 'practice');
+
+-- Phase 5 — The DOM & Events
+INSERT INTO lesson (id, topic_id, slug, title, order_index, mode) VALUES
+  (UUID(), @t10, 'getelementbyid',  'getElementById',     1, 'practice'),
+  (UUID(), @t10, 'queryselector',   'querySelector',      2, 'practice'),
+  (UUID(), @t10, 'textcontent',     'textContent',        3, 'practice'),
+  (UUID(), @t10, 'changing-styles', 'Changing styles',    4, 'practice'),
+  (UUID(), @t10, 'classlist',       'classList',          5, 'practice'),
+  (UUID(), @t10, 'createelement',   'createElement',      6, 'practice'),
+  (UUID(), @t11, 'input-event',     'input event',        7, 'practice'),
+  (UUID(), @t11, 'event-object',    'Event object',       8, 'practice'),
+  (UUID(), @t11, 'preventdefault',  'preventDefault',     9, 'practice');
+
+-- Phase 6 — Async JavaScript
+INSERT INTO lesson (id, topic_id, slug, title, order_index, mode) VALUES
+  (UUID(), @t12, 'settimeout',   'setTimeout',    1, 'practice'),
+  (UUID(), @t12, 'setinterval',  'setInterval',   2, 'practice'),
+  (UUID(), @t13, 'promises',     'Promises',      3, 'practice'),
+  (UUID(), @t14, 'async-await',  'async/await',   4, 'practice'),
+  (UUID(), @t14, 'fetch-json',   'fetch + JSON',  5, 'practice');
+
+-- Phase 7 — Advanced & Modern JS
+INSERT INTO lesson (id, topic_id, slug, title, order_index, mode) VALUES
+  (UUID(), @t15, 'closures',       'Closures',       1, 'practice'),
+  (UUID(), @t15, 'this',           'this keyword',   2, 'practice'),
+  (UUID(), @t15, 'classes',        'Classes',        3, 'practice'),
+  (UUID(), @t15, 'inheritance',    'Inheritance',    4, 'practice'),
+  (UUID(), @t16, 'es-modules',    'ES Modules',     5, 'practice'),
+  (UUID(), @t17, 'error-handling', 'Error handling', 6, 'practice'),
+  (UUID(), @t15, 'event-loop',    'Event loop',     7, 'practice');

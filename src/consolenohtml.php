@@ -84,6 +84,7 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
       <div class="c-js-toolbar">
         <span class="c-toolbar__hint">Done writing?</span>
         <div class="c-spacer"></div>
+        <button class="c-btn c-btn--secondary" id="show-answer-btn">Show answer</button>
         <button class="c-btn c-btn--review" id="review-btn">Review my code ↗</button>
       </div>
     </div>
@@ -209,6 +210,10 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
     // Check rules — populated by the Claude API when the exercise loads.
     var CHECKS = [];
 
+    // Full exercise context — stored when loadExercise() completes.
+    // Used by the review button to provide Claude with the complete picture.
+    var currentExercise = {};
+
     function runChecks(doc, code, logs) {
       return CHECKS.map(function (c) {
         var pass = false;
@@ -233,6 +238,16 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
       output.innerHTML = '<span class="c-hint">Run your code to see results.</span>';
     });
 
+    // Show answer — populate the JS editor with the solution code
+    document.getElementById('show-answer-btn').addEventListener('click', function () {
+      if (!currentExercise.solution_code) {
+        output.innerHTML = '<span class="c-hint">Solution not available for this exercise.</span>';
+        return;
+      }
+      jsEditor.setValue(currentExercise.solution_code);
+      output.innerHTML = '<span class="c-hint">Solution loaded. Click <strong>Run</strong> to see it work.</span>';
+    });
+
     document.getElementById('review-btn').addEventListener('click', async function () {
       var code = jsEditor.getValue().trim();
       if (!code) {
@@ -241,10 +256,18 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
       }
       output.innerHTML = '<span class="c-hint">Getting AI feedback…</span>';
       try {
+        // Send the full exercise context so Claude sees the task, checks, and code together.
         var res  = await fetch('/api/review.php', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ code: code, topic: <?= json_encode($topic) ?> }),
+          body:    JSON.stringify({
+            code: code,
+            topic: <?= json_encode($topic) ?>,
+            task_title: currentExercise.task_title,
+            task_description: currentExercise.task_description,
+            checks: currentExercise.checks,
+            mode: 'study'
+          }),
         });
         var data     = await res.json();
         var feedback = data.content?.[0]?.text ?? 'Could not get feedback.';
@@ -284,6 +307,9 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
 
         var exercise = await res.json();
         if (exercise.error) throw new Error(exercise.error);
+
+        // Store the full exercise context so the review button can send it to Claude
+        currentExercise = exercise;
 
         titleEl.innerHTML = esc(exercise.task_title || '<?= h($topic) ?>') +
           ' <span class="c-mode-badge c-mode-study">📖 Study</span>';

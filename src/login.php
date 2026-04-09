@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Look up the user by email using a prepared statement.
     // The ? placeholder is filled in safely — PDO never lets $email touch the SQL string.
-    $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
+    $stmt = $pdo->prepare('SELECT * FROM user WHERE email = ?');
     $stmt->execute([$email]);
     $user = $stmt->fetch(); // returns an associative array, or false if not found
 
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Credentials are correct — create the session.
         // login_user() is defined in auth.php: it regenerates the session ID
         // (prevents session fixation) then stores user_id and username in $_SESSION.
-        login_user((int) $user['id'], $user['username']);
+        login_user($user['id'], $user['username']);
 
         // Send the user to the study page now that they're logged in
         redirect('/index.php');
