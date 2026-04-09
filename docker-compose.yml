@@ -1,5 +1,7 @@
 services:
   php:
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
     build: ./docker/php
     container_name: jstutor_php
     ports:

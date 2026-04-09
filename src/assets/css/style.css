@@ -293,30 +293,49 @@ a:hover {
 
 /* Bullet list of sub-topics */
 .roadmap-list {
-  list-style: disc;
+  list-style: none;          /* checkboxes replace the bullets */
   padding-left: 2.5rem;
   margin-top: 0.4rem;
   margin-bottom: 0.5rem;
 }
 
+/* Flex row: [checkbox] [link] — aligned on the text baseline */
 .roadmap-list li {
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: 1.1rem;
   color: #ffffff;
   line-height: 1.8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Checkbox: green accent, pointer cursor, fixed size */
+.topic-check {
+  cursor: pointer;
+  accent-color: var(--color-green); /* tints the checkbox when checked */
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 /* Each list item links to tutor.php */
 .roadmap-list a {
   color: #ffffff;
   text-decoration: none;
-  transition: color 0.15s;
+  transition: color 0.15s, opacity 0.15s;
 }
 
 .roadmap-list a:hover {
   color: var(--color-green);
   text-decoration: none;
+}
+
+/* Studied state: strikethrough + faded — applied by JS when checkbox is checked */
+.roadmap-list a.topic--studied {
+  text-decoration: line-through;
+  opacity: 0.45;
 }
 
 
@@ -571,12 +590,16 @@ a:hover {
   margin-bottom: 0.5rem;
 }
 
+/* Flex row: [checkbox] [link] — same pattern as .roadmap-list li in study.php */
 .practice-list li {
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: 1.1rem;
   color: #ffffff;
   line-height: 1.8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .practice-list a {
@@ -588,6 +611,12 @@ a:hover {
 .practice-list a:hover {
   color: var(--color-green);
   text-decoration: none;
+}
+
+/* Practiced state: strikethrough + faded — applied by JS when checkbox is checked */
+.practice-list a.topic--studied {
+  text-decoration: line-through;
+  opacity: 0.45;
 }
 
 
@@ -698,6 +727,13 @@ a:hover {
 
 /* ── Toolbars ─────────────────────────────────────────────────────── */
 
+/* Centered action row for loading a fresh challenge */
+.c-challenge-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
 /* Main toolbar above the panels: hint text left, Run/Reset buttons right */
 .c-toolbar {
   display: flex;
@@ -755,6 +791,17 @@ a:hover {
   border: 1px solid var(--color-border);
 }
 
+/* New Challenge — centered call-to-action above the toolbar */
+.c-btn--challenge {
+  background: var(--color-console);
+  color: #ffffff;
+}
+
+.c-btn--challenge:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
 /* Review — ghost style using the console blue */
 .c-btn--review {
   background: transparent;
@@ -794,9 +841,10 @@ a:hover {
   flex-shrink: 0;
 }
 
-.c-dot--html { background: #E24B4A; }  /* red   — HTML panel   */
-.c-dot--js   { background: #EF9F27; }  /* amber — JS panel     */
-.c-dot--out  { background: #1D9E75; }  /* green — output panel */
+.c-dot--html    { background: #E24B4A; }  /* red   — HTML panel    */
+.c-dot--js      { background: #EF9F27; }  /* amber — JS panel      */
+.c-dot--out     { background: #1D9E75; }  /* green — output panel  */
+.c-dot--preview { background: #0EA5E9; }  /* blue  — preview panel */
 
 /* ── CodeMirror sizing ───────────────────────────────────────────── */
 
@@ -820,16 +868,21 @@ a:hover {
 
 /* ── Preview iframe ──────────────────────────────────────────────── */
 
-/* White background so HTML pages render with their natural BG colour */
+/* Dracula bg — matches the CodeMirror editor panels so the preview blends in */
 .c-preview-wrap {
-  background: #ffffff;
+  background: #282a36;
 }
 
 .c-preview-wrap iframe {
   width: 100%;
-  height: 70px;    /* compact in Study mode; more useful in Real/DOM mode */
+  height: 70px;    /* default compact height (consolenohtml hides it entirely) */
   border: none;
   display: block;
+}
+
+/* Real mode preview — taller so DOM changes are clearly visible */
+.c-preview-wrap--real iframe {
+  height: 240px;
 }
 
 /* ── Output panel ────────────────────────────────────────────────── */
@@ -886,6 +939,144 @@ a:hover {
   font-size: 14px;
   font-weight: 600;
   color: var(--color-success);
+}
+
+
+/* =============================================================================
+   Mode Page  (mode.php)
+   Full-viewport centred picker — Study mode vs Real mode.
+   ============================================================================= */
+
+/* Vertically and horizontally centre everything below the nav */
+.mode__layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 90px);  /* 90px ≈ nav height */
+  padding: 32px 24px 64px;
+  text-align: center;
+}
+
+/* "How do you want to practice" — small muted label */
+.mode__heading {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+/* The topic name — large green headline */
+.mode__topic {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 2rem;
+  color: var(--color-green);
+  margin-bottom: 48px;
+}
+
+/* Side-by-side card row — stacks vertically on small screens */
+.mode__options {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+/* Shared card base */
+.mode__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 280px;
+  padding: 32px 28px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  text-decoration: none;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  cursor: pointer;
+}
+
+.mode__card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  text-decoration: none;
+}
+
+/* Study mode card — purple theme */
+.mode__card--study {
+  background: rgba(124, 58, 237, 0.12);
+  border-color: var(--color-tutor);
+}
+
+.mode__card--study:hover {
+  border-color: var(--color-tutor-light);
+  background: rgba(124, 58, 237, 0.2);
+}
+
+/* Real mode card — blue theme */
+.mode__card--real {
+  background: rgba(14, 165, 233, 0.12);
+  border-color: var(--color-console);
+}
+
+.mode__card--real:hover {
+  border-color: var(--color-console-light);
+  background: rgba(14, 165, 233, 0.2);
+}
+
+/* Large emoji icon */
+.mode__icon {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+/* Mode name — "Study mode" / "Real mode" */
+.mode__title {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+}
+
+.mode__card--study .mode__title { color: var(--color-tutor-light); }
+.mode__card--real  .mode__title { color: var(--color-console-light); }
+
+/* Short description below the title */
+.mode__desc {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  text-align: left;
+  margin-bottom: 24px;
+  flex: 1;  /* pushes the CTA to the bottom */
+}
+
+/* "Start studying →" / "Start building →" — coloured call to action */
+.mode__cta {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.mode__card--study .mode__cta { color: var(--color-tutor-light); }
+.mode__card--real  .mode__cta { color: var(--color-console-light); }
+
+/* Back link below the cards */
+.mode__back {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.mode__back:hover {
+  color: var(--color-green);
+  text-decoration: none;
 }
 
 

@@ -51,12 +51,12 @@ require_login(); // Redirect to login.php if the user is not logged in
     <details class="roadmap-topic">
       <summary class="practice-title">Phase 1 — The Very Basics</summary>
       <ol class="practice-list">
-        <li><a href="/console.php?topic=variables-let-const">Variables — let/const</a></li>
-        <li><a href="/console.php?topic=typeof">typeof</a></li>
-        <li><a href="/console.php?topic=type-coercion">Type coercion</a></li>
-        <li><a href="/console.php?topic=template-literals">Template literals</a></li>
-        <li><a href="/console.php?topic=equality">== vs ===</a></li>
-        <li><a href="/console.php?topic=nullish-coalescing">Nullish coalescing ??</a></li>
+        <li><a href="/mode.php?topic=variables-let-const">Variables — let/const</a></li>
+        <li><a href="/mode.php?topic=typeof">typeof</a></li>
+        <li><a href="/mode.php?topic=type-coercion">Type coercion</a></li>
+        <li><a href="/mode.php?topic=template-literals">Template literals</a></li>
+        <li><a href="/mode.php?topic=equality">== vs ===</a></li>
+        <li><a href="/mode.php?topic=nullish-coalescing">Nullish coalescing ??</a></li>
       </ol>
     </details>
 
@@ -64,13 +64,13 @@ require_login(); // Redirect to login.php if the user is not logged in
     <details class="roadmap-topic">
       <summary class="practice-title">Phase 2 — Control Flow</summary>
       <ol class="practice-list">
-        <li><a href="/console.php?topic=if-else">if / else</a></li>
-        <li><a href="/console.php?topic=switch">switch</a></li>
-        <li><a href="/console.php?topic=ternary">Ternary operator</a></li>
-        <li><a href="/console.php?topic=for-loop">for loop</a></li>
-        <li><a href="/console.php?topic=while-loop">while loop</a></li>
-        <li><a href="/console.php?topic=for-of">for...of</a></li>
-        <li><a href="/console.php?topic=for-in">for...in</a></li>
+        <li><a href="/mode.php?topic=if-else">if / else</a></li>
+        <li><a href="/mode.php?topic=switch">switch</a></li>
+        <li><a href="/mode.php?topic=ternary">Ternary operator</a></li>
+        <li><a href="/mode.php?topic=for-loop">for loop</a></li>
+        <li><a href="/mode.php?topic=while-loop">while loop</a></li>
+        <li><a href="/mode.php?topic=for-of">for...of</a></li>
+        <li><a href="/mode.php?topic=for-in">for...in</a></li>
       </ol>
     </details>
 
@@ -78,13 +78,13 @@ require_login(); // Redirect to login.php if the user is not logged in
     <details class="roadmap-topic">
       <summary class="practice-title">Phase 3 — Functions</summary>
       <ol class="practice-list">
-        <li><a href="/console.php?topic=function-declaration">Function declaration</a></li>
-        <li><a href="/console.php?topic=function-expression">Function expression</a></li>
-        <li><a href="/console.php?topic=arrow-functions">Arrow functions</a></li>
-        <li><a href="/console.php?topic=default-parameters">Default parameters</a></li>
-        <li><a href="/console.php?topic=return">Return statement</a></li>
-        <li><a href="/console.php?topic=callbacks">Callback functions</a></li>
-        <li><a href="/console.php?topic=scope">Scope</a></li>
+        <li><a href="/mode.php?topic=function-declaration">Function declaration</a></li>
+        <li><a href="/mode.php?topic=function-expression">Function expression</a></li>
+        <li><a href="/mode.php?topic=arrow-functions">Arrow functions</a></li>
+        <li><a href="/mode.php?topic=default-parameters">Default parameters</a></li>
+        <li><a href="/mode.php?topic=return">Return statement</a></li>
+        <li><a href="/mode.php?topic=callbacks">Callback functions</a></li>
+        <li><a href="/mode.php?topic=scope">Scope</a></li>
       </ol>
     </details>
 
@@ -92,16 +92,16 @@ require_login(); // Redirect to login.php if the user is not logged in
     <details class="roadmap-topic">
       <summary class="practice-title">Phase 4 — Arrays &amp; Objects</summary>
       <ol class="practice-list">
-        <li><a href="/console.php?topic=arrays-basics">Creating arrays</a></li>
-        <li><a href="/console.php?topic=push-pop">push / pop / shift / unshift</a></li>
-        <li><a href="/console.php?topic=foreach">forEach</a></li>
-        <li><a href="/console.php?topic=map">map</a></li>
-        <li><a href="/console.php?topic=filter">filter</a></li>
-        <li><a href="/console.php?topic=reduce">reduce</a></li>
-        <li><a href="/console.php?topic=objects-key-value">Objects — key/value</a></li>
-        <li><a href="/console.php?topic=object-methods">Object.keys/values/entries</a></li>
-        <li><a href="/console.php?topic=destructuring">Destructuring</a></li>
-        <li><a href="/console.php?topic=spread">Spread operator</a></li>
+        <li><a href="/mode.php?topic=arrays-basics">Creating arrays</a></li>
+        <li><a href="/mode.php?topic=push-pop">push / pop / shift / unshift</a></li>
+        <li><a href="/mode.php?topic=foreach">forEach</a></li>
+        <li><a href="/mode.php?topic=map">map</a></li>
+        <li><a href="/mode.php?topic=filter">filter</a></li>
+        <li><a href="/mode.php?topic=reduce">reduce</a></li>
+        <li><a href="/mode.php?topic=objects-key-value">Objects — key/value</a></li>
+        <li><a href="/mode.php?topic=object-methods">Object.keys/values/entries</a></li>
+        <li><a href="/mode.php?topic=destructuring">Destructuring</a></li>
+        <li><a href="/mode.php?topic=spread">Spread operator</a></li>
       </ol>
     </details>
 
@@ -109,15 +109,15 @@ require_login(); // Redirect to login.php if the user is not logged in
     <details class="roadmap-topic">
       <summary class="practice-title">Phase 5 — The DOM &amp; Events</summary>
       <ol class="practice-list">
-        <li><a href="/console.php?topic=getelementbyid">getElementById</a></li>
-        <li><a href="/console.php?topic=queryselector">querySelector</a></li>
-        <li><a href="/console.php?topic=textcontent">textContent</a></li>
-        <li><a href="/console.php?topic=changing-styles">Changing styles</a></li>
-        <li><a href="/console.php?topic=classlist">classList</a></li>
-        <li><a href="/console.php?topic=createelement">createElement</a></li>
-        <li><a href="/console.php?topic=input-event">input event</a></li>
-        <li><a href="/console.php?topic=event-object">Event object</a></li>
-        <li><a href="/console.php?topic=preventdefault">preventDefault</a></li>
+        <li><a href="/mode.php?topic=getelementbyid">getElementById</a></li>
+        <li><a href="/mode.php?topic=queryselector">querySelector</a></li>
+        <li><a href="/mode.php?topic=textcontent">textContent</a></li>
+        <li><a href="/mode.php?topic=changing-styles">Changing styles</a></li>
+        <li><a href="/mode.php?topic=classlist">classList</a></li>
+        <li><a href="/mode.php?topic=createelement">createElement</a></li>
+        <li><a href="/mode.php?topic=input-event">input event</a></li>
+        <li><a href="/mode.php?topic=event-object">Event object</a></li>
+        <li><a href="/mode.php?topic=preventdefault">preventDefault</a></li>
       </ol>
     </details>
 
@@ -125,11 +125,11 @@ require_login(); // Redirect to login.php if the user is not logged in
     <details class="roadmap-topic">
       <summary class="practice-title">Phase 6 — Async JavaScript</summary>
       <ol class="practice-list">
-        <li><a href="/console.php?topic=settimeout">setTimeout</a></li>
-        <li><a href="/console.php?topic=setinterval">setInterval</a></li>
-        <li><a href="/console.php?topic=promises">Promises</a></li>
-        <li><a href="/console.php?topic=async-await">async/await</a></li>
-        <li><a href="/console.php?topic=fetch-json">fetch + JSON</a></li>
+        <li><a href="/mode.php?topic=settimeout">setTimeout</a></li>
+        <li><a href="/mode.php?topic=setinterval">setInterval</a></li>
+        <li><a href="/mode.php?topic=promises">Promises</a></li>
+        <li><a href="/mode.php?topic=async-await">async/await</a></li>
+        <li><a href="/mode.php?topic=fetch-json">fetch + JSON</a></li>
       </ol>
     </details>
 
@@ -137,18 +137,97 @@ require_login(); // Redirect to login.php if the user is not logged in
     <details class="roadmap-topic">
       <summary class="practice-title">Phase 7 — Advanced &amp; Modern JS</summary>
       <ol class="practice-list">
-        <li><a href="/console.php?topic=closures">Closures</a></li>
-        <li><a href="/console.php?topic=this">this keyword</a></li>
-        <li><a href="/console.php?topic=classes">Classes</a></li>
-        <li><a href="/console.php?topic=inheritance">Inheritance</a></li>
-        <li><a href="/console.php?topic=es-modules">ES Modules</a></li>
-        <li><a href="/console.php?topic=error-handling">Error handling</a></li>
-        <li><a href="/console.php?topic=event-loop">Event loop</a></li>
+        <li><a href="/mode.php?topic=closures">Closures</a></li>
+        <li><a href="/mode.php?topic=this">this keyword</a></li>
+        <li><a href="/mode.php?topic=classes">Classes</a></li>
+        <li><a href="/mode.php?topic=inheritance">Inheritance</a></li>
+        <li><a href="/mode.php?topic=es-modules">ES Modules</a></li>
+        <li><a href="/mode.php?topic=error-handling">Error handling</a></li>
+        <li><a href="/mode.php?topic=event-loop">Event loop</a></li>
       </ol>
     </details>
 
   </main>
 
   <script src="/assets/js/main.js"></script>
+
+  <script>
+    // ── Topic checkboxes — "mark as already practiced" ─────────────
+    //
+    // Same pattern as study.php: checkboxes are injected dynamically,
+    // state is persisted to MySQL via /api/progress.php.
+    // Each checkbox is keyed by the lesson slug (the ?topic= URL value).
+
+    // Step 1 — inject a checkbox before every topic link and wire up changes.
+    document.querySelectorAll('.practice-list a').forEach(function (link) {
+      // Extract the slug from the href, e.g. "/mode.php?topic=for-loop" → "for-loop"
+      var slug = new URL(link.href, location.origin).searchParams.get('topic');
+      if (!slug) return;
+
+      var checkbox          = document.createElement('input');
+      checkbox.type         = 'checkbox';
+      checkbox.className    = 'topic-check';
+      checkbox.title        = 'Mark as practiced';
+      checkbox.dataset.slug = slug;   // used by loadProgress() to find this checkbox
+
+      // Update UI instantly on change, then persist to the DB.
+      checkbox.addEventListener('change', function () {
+        var isChecked = this.checked;
+
+        if (isChecked) {
+          link.classList.add('topic--studied');
+        } else {
+          link.classList.remove('topic--studied');
+        }
+
+        // Save the new state to the DB — fire and forget
+        saveProgress(slug, isChecked);
+      });
+
+      link.parentElement.insertBefore(checkbox, link);
+    });
+
+    // Step 2 — fetch the user's existing progress and tick the matching boxes.
+    loadProgress();
+
+    // ── loadProgress() ──────────────────────────────────────────────
+    // GET /api/progress.php → { studied: ["slug-a", "slug-b", ...] }
+    // Ticks every checkbox whose slug appears in the response.
+    async function loadProgress() {
+      try {
+        var res  = await fetch('/api/progress.php');
+        var data = await res.json();
+        var studied = data.studied || [];
+
+        studied.forEach(function (slug) {
+          var checkbox = document.querySelector('.topic-check[data-slug="' + slug + '"]');
+          if (!checkbox) return;
+
+          checkbox.checked = true;
+
+          var link = checkbox.nextElementSibling;
+          if (link) link.classList.add('topic--studied');
+        });
+
+      } catch (e) {
+        console.warn('Could not load progress from server:', e);
+      }
+    }
+
+    // ── saveProgress() ──────────────────────────────────────────────
+    // POST /api/progress.php with { slug, studied: true|false }
+    // Called on every checkbox change.
+    async function saveProgress(slug, studied) {
+      try {
+        await fetch('/api/progress.php', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ slug: slug, studied: studied }),
+        });
+      } catch (e) {
+        console.warn('Could not save progress to server:', e);
+      }
+    }
+  </script>
 </body>
 </html>

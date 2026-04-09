@@ -98,7 +98,15 @@ $topic = $slug !== '' ? ucwords(str_replace('-', ' ', $slug)) : 'Unknown Topic';
 
   </div><!-- /.tutor__container -->
 
+  <script src="/assets/js/main.js"></script>
   <script>
+    // ── State ───────────────────────────────────────────────────────
+    // Full conversation history sent to the API on every request.
+    // Each entry is { role: 'user'|'assistant', content: string }.
+    // Anthropic requires alternating user/assistant turns.
+    var conversationHistory = [];
+    var topic = <?= json_encode($slug) ?>;   // URL slug, e.g. "if-else"
+
     // ── DOM references ──────────────────────────────────────────────
     var chatMessages = document.getElementById('chat-messages');
     var chatInput    = document.getElementById('chat-input');
@@ -122,22 +130,66 @@ $topic = $slug !== '' ? ucwords(str_replace('-', ' ', $slug)) : 'Unknown Topic';
     sendBtn.addEventListener('click', sendMessage);
 
     // ── sendMessage() — append user bubble and call the tutor API ───
-    function sendMessage() {
+    // async so we can use await for the fetch call
+    async function sendMessage() {
       var text = chatInput.value.trim();
       if (!text) return;
 
-      // Show the user's message immediately in the chat
+      // Show the user's message immediately — don't wait for the API
       appendMessage('user', text);
-
-      // Clear and reset the textarea height
       chatInput.value = '';
       chatInput.style.height = 'auto';
 
-      // TODO: call the Anthropic API here and append the tutor's response.
-      // The API call will send the full conversation history + the system
-      // prompt (Socratic tutor persona) and stream the reply back.
-      // For now, show a placeholder while the API is being wired up.
-      appendMessage('ai', 'API coming soon — the Anthropic integration will be wired up here.');
+      // Add this turn to the history before sending.
+      // The full history is sent every time so the model has full context.
+      conversationHistory.push({ role: 'user', content: text });
+
+      // Show a "..." loading bubble while waiting for the API
+      var loadingId = appendLoadingBubble();
+
+      try {
+        // POST the conversation history to our PHP proxy.
+        // The proxy adds the API key and system prompt server-side.
+        var res = await fetch('/api/tutor.php', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ messages: conversationHistory }),
+        });
+
+        var data  = await res.json();
+        // Anthropic returns: { content: [{ type: 'text', text: '...' }] }
+        var reply = data.content?.[0]?.text ?? 'Sorry, something went wrong.';
+
+        // Add the assistant turn to history so the next request has context
+        conversationHistory.push({ role: 'assistant', content: reply });
+
+        removeLoadingBubble(loadingId);
+        appendMessage('ai', reply);
+
+      } catch (e) {
+        removeLoadingBubble(loadingId);
+        appendMessage('ai', 'Connection error — please try again.');
+      }
+    }
+
+    // ── Loading bubble helpers ──────────────────────────────────────
+    // Returns the bubble's id so it can be removed once the reply arrives.
+    function appendLoadingBubble() {
+      var id  = 'loading-' + Date.now();
+      var row = document.createElement('div');
+      row.id        = id;
+      row.className = 'tutor__message tutor__message--ai';
+      row.innerHTML =
+        '<div class="tutor__avatar">JS</div>' +
+        '<div class="tutor__bubble">...</div>';
+      chatMessages.appendChild(row);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return id;
+    }
+
+    function removeLoadingBubble(id) {
+      var el = document.getElementById(id);
+      if (el) el.remove();
     }
 
     // ── appendMessage() — add a bubble to the chat ──────────────────
@@ -173,6 +225,19 @@ $topic = $slug !== '' ? ucwords(str_replace('-', ' ', $slug)) : 'Unknown Topic';
 
     // Scroll to bottom on initial load (in case there are placeholder messages)
     chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // ── Auto-start — seed the conversation with the current topic ───
+    // This runs silently: we add a user turn to the history so the tutor
+    // knows which topic to focus on, without showing it as a visible bubble.
+    // The first real reply will be triggered by the learner's first message.
+    window.addEventListener('DOMContentLoaded', function () {
+      if (topic) {
+        conversationHistory.push({
+          role:    'user',
+          content: 'I want to learn about: ' + <?= json_encode($topic) ?>,
+        });
+      }
+    });
   </script>
 
 </body>

@@ -277,5 +277,90 @@ require_login(); // Redirect to login.php if the user is not logged in
   </main>
 
   <script src="/assets/js/main.js"></script>
+
+  <script>
+    // ── Topic checkboxes — "mark as already studied" ────────────────
+    //
+    // Checkboxes are injected dynamically so we don't touch 60+ <li> items.
+    // State is saved to and loaded from the DB via /api/progress.php.
+    // Each checkbox is keyed by the lesson slug (the ?topic= URL value).
+
+    // Step 1 — build all the checkboxes and wire up their change handlers.
+    // We do this first so the DOM is ready before we load progress from the DB.
+    document.querySelectorAll('.roadmap-list a').forEach(function (link) {
+      // Extract the slug from the link href
+      // e.g. "/tutor.php?topic=what-is-a-variable" → "what-is-a-variable"
+      var slug = new URL(link.href, location.origin).searchParams.get('topic');
+      if (!slug) return;
+
+      var checkbox          = document.createElement('input');
+      checkbox.type         = 'checkbox';
+      checkbox.className    = 'topic-check';
+      checkbox.title        = 'Mark as studied';
+      checkbox.dataset.slug = slug;   // stored so loadProgress() can find it
+
+      // On change: immediately update the visual state, then persist to the DB.
+      // We update the UI first so the response feels instant — no waiting for fetch.
+      checkbox.addEventListener('change', function () {
+        var isChecked = this.checked;
+
+        if (isChecked) {
+          link.classList.add('topic--studied');
+        } else {
+          link.classList.remove('topic--studied');
+        }
+
+        // Save the new state to the DB — fire and forget (no await needed here)
+        saveProgress(slug, isChecked);
+      });
+
+      link.parentElement.insertBefore(checkbox, link);
+    });
+
+    // Step 2 — load the user's progress from the DB and tick the right boxes.
+    loadProgress();
+
+    // ── loadProgress() ──────────────────────────────────────────────
+    // GET /api/progress.php → { studied: ["slug-a", "slug-b", ...] }
+    // Ticks every checkbox whose slug appears in the response.
+    async function loadProgress() {
+      try {
+        var res  = await fetch('/api/progress.php');
+        var data = await res.json();
+        var studied = data.studied || [];   // array of slugs the user completed
+
+        studied.forEach(function (slug) {
+          // Find the checkbox by its data-slug attribute
+          var checkbox = document.querySelector('.topic-check[data-slug="' + slug + '"]');
+          if (!checkbox) return;
+
+          checkbox.checked = true;
+
+          // The link is the next sibling of the checkbox inside the <li>
+          var link = checkbox.nextElementSibling;
+          if (link) link.classList.add('topic--studied');
+        });
+
+      } catch (e) {
+        // Progress failed to load — not critical, page still works
+        console.warn('Could not load progress from server:', e);
+      }
+    }
+
+    // ── saveProgress() ──────────────────────────────────────────────
+    // POST /api/progress.php with { slug, studied: true|false }
+    // Called on every checkbox change — updates the DB record.
+    async function saveProgress(slug, studied) {
+      try {
+        await fetch('/api/progress.php', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ slug: slug, studied: studied }),
+        });
+      } catch (e) {
+        console.warn('Could not save progress to server:', e);
+      }
+    }
+  </script>
 </body>
 </html>
