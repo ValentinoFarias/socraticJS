@@ -12,3 +12,6 @@ RUN a2enmod rewrite
 
 # Set working directory
 WORKDIR /var/www/html
+
+# Heroku assigns a dynamic port at runtime — rewrite Apache's port to match
+CMD sed -i "s/80/$PORT/g" /etc/apache2/ports.conf && apache2-foreground

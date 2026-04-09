@@ -7,7 +7,7 @@
 // On Heroku, JawsDB provides a JAWSDB_URL environment variable in the format:
 // mysql://user:password@host:3306/dbname
 // Locally, we fall back to the Docker Compose credentials.
-$url = getenv('JAWSDB_URL');
+$url = getenv('JAWSDB_MARIA_URL') ?: getenv('JAWSDB_URL');
  
 if ($url) {
     // ── Heroku / JawsDB ───────────────────────────────────────────
