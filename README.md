@@ -2,7 +2,7 @@
 
 An AI-powered JavaScript learning platform that teaches through the Socratic method — guiding beginners to *discover* answers themselves rather than just reading explanations. Built with PHP, MySQL, and the Anthropic API.
 
-<img src="src/assets/img/readme/homescreenshot.png" alt="screenshot of homepage">
+<img src="src/assets/img/readme/homescreenshot.png" alt="SocraticJS homepage showing a dark interface with a beige vintage computer graphic in the top left corner, a centered headline reading IA-Powered JavaScript Socratic Tutor in bright green monospace text, and two retro beige computer illustrations below labeled Study and Practice respectively, set against a dark charcoal background with navigation links in the top right">
 ---
 
 ## Table of Contents
@@ -56,7 +56,7 @@ Key relationships:
 - A `user_progress` row per `(user, lesson)` tracks study completion.
 - An `attempt` per `(user, exercise)` stores submitted code; each attempt can have one `ai_review`.
 
-<!-- screenshot: ERD diagram from sql/schema.sql -->
+<img src="src/assets/img/readme/socratictutoERDs.png" alt="ERDs schema of the socratic tutor">
 
 ---
 
