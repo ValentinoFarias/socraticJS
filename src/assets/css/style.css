@@ -141,7 +141,7 @@ a:hover {
   font-size: 2.5rem;          /* ~40px matching Figma */
   color: var(--color-green);
   text-align: center;
-  margin-top: 32px;
+  margin-top: 10px;
   letter-spacing: 0.01em;
 }
 
@@ -152,7 +152,7 @@ a:hover {
   align-items: flex-start;
   gap: 88px;                  /* gap between the two computers */
   flex: 1;
-  padding-top: 24px;
+  padding-top: 70px;
 }
 
 .home__computer {
@@ -1164,6 +1164,8 @@ a:hover {
   border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 48px 40px;
+  margin-top: -90px;
+
 }
 
 .auth__title {

@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="auth">
     <div class="auth__card">
 
-      <h1 class="auth__title">login</h1>
+      <h1 class="auth__title">logIn</h1>
 
       <?php if ($error !== ''): ?>
         <!-- h() escapes the error string so it can never inject HTML -->
@@ -120,12 +120,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           >
         </div>
 
-        <button class="auth__submit" type="submit">log in</button>
+        <button class="auth__submit" type="submit">logIn</button>
 
       </form>
 
       <p class="auth__footer">
-        don't have an account? <a href="/register.php">sign up</a>
+        don't have an account? <a href="/register.php">signUp</a>
       </p>
 
     </div>
