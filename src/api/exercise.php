@@ -28,7 +28,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $body  = json_decode(file_get_contents('php://input'), true);
 $topic = $body['topic'] ?? '';
-$mode  = $body['mode']  ?? 'study';   // "study" or "real"
+$mode  = $body['mode']  ?? 'study';        // "study" or "real"
+$level = $body['level'] ?? 'beginner';      // "beginner" | "intermediate" | "advanced"
+
+// Whitelist the level — never trust values coming from the client.
+// If something unexpected arrives, fall back to beginner (safest default).
+$allowed_levels = ['beginner', 'intermediate', 'advanced'];
+if (!in_array($level, $allowed_levels, true)) {
+    $level = 'beginner';
+}
 
 if (empty($topic)) {
     http_response_code(400);
@@ -116,6 +124,42 @@ Phase 6 — Async JavaScript: setTimeout, setInterval, Promises, async/await, fe
 Phase 7 — Advanced & Modern JS: closures, this keyword, classes, inheritance, ES modules, error handling, event loop
 PROMPT;
 
+// ── Level-specific instructions ─────────────────────────────────────────
+// The base system prompt (above) describes the general exercise format.
+// The instructions below refine it based on the difficulty level chosen on
+// mode.php. We append one of these blocks to the system prompt on every
+// request so the generator knows exactly what kind of challenge to produce.
+// Using a match expression keeps the mapping compact and readable.
+$level_instructions = match ($level) {
+    'beginner' =>
+        "\n\nLEVEL: BEGINNER\n" .
+        "Generate a pure JavaScript exercise. No HTML, no DOM. The solution " .
+        "uses only console.log(). One concept only. No event listeners, no " .
+        "getElementById, no innerHTML. starter_html MUST be null.",
+
+    'intermediate' =>
+        "\n\nLEVEL: INTERMEDIATE\n" .
+        "Generate a JavaScript exercise that targets a given HTML structure. " .
+        "The JS must run once on page load — no button clicks, no event " .
+        "listeners. The learner uses getElementById, querySelector, " .
+        "textContent, or innerHTML to put something on the page. " .
+        "starter_html MUST contain 3-5 meaningful HTML elements.",
+
+    'advanced' =>
+        "\n\nLEVEL: ADVANCED\n" .
+        "Generate a JavaScript exercise that requires user interaction. " .
+        "HTML is provided with at least one button. The learner must wire " .
+        "up a click event listener, handle DOM updates, and clear/re-render " .
+        "output. Multiple synchronous concepts working together. " .
+        "starter_html MUST include at least one <button> the learner will " .
+        "attach a listener to.",
+};
+
+// Append the level-specific block to the base system prompt. String
+// concatenation is fine here because the nowdoc above is already a
+// regular PHP string at this point.
+$system_prompt .= $level_instructions;
+
 // ── Variety injection ───────────────────────────────────────────────────
 // Without this, Claude returns almost the same exercise every time for the
 // same (topic, mode). We pass two things that change on every request:
@@ -150,7 +194,10 @@ $theme = $themes[array_rand($themes)];
 $variation_seed = random_int(1000, 9999);
 
 // ── User message — tells Claude WHAT to generate ────────────────────────
-$user_message = "Topic: \"$topic\"\nMode: \"$mode\"\nScenario: $theme\nVariation: $variation_seed";
+// We repeat `Level` in the user message (on top of the system prompt block
+// above) because the system prompt is long — restating it right next to the
+// topic makes the target difficulty impossible to miss.
+$user_message = "Topic: \"$topic\"\nMode: \"$mode\"\nLevel: \"$level\"\nScenario: $theme\nVariation: $variation_seed";
 
 $payload = json_encode([
     'model'      => 'claude-sonnet-4-20250514',

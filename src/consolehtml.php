@@ -10,6 +10,15 @@ require_login();
 $slug  = isset($_GET['topic']) ? $_GET['topic'] : '';
 $topic = $slug !== '' ? ucwords(str_replace('-', ' ', $slug)) : 'Unknown Topic';
 
+// Difficulty level — this page handles BOTH "intermediate" and "advanced".
+// We read it from the URL (set by mode.php) and whitelist the value so an
+// unexpected input falls back to "intermediate" (the safer of the two, since
+// advanced assumes the learner already knows event listeners).
+$level = isset($_GET['level']) ? $_GET['level'] : 'intermediate';
+if ($level !== 'intermediate' && $level !== 'advanced') {
+    $level = 'intermediate';
+}
+
 // Default starter HTML — replaced by the AI-generated template once the API responds.
 $starter_html = implode("\n", [
     '<!DOCTYPE html>',
@@ -430,7 +439,13 @@ $starter_html = implode("\n", [
         var res = await fetch('/api/exercise.php', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ topic: <?= json_encode($slug) ?>, mode: 'real' }),
+          // Include `level` so the API can tailor the prompt (intermediate =
+          // no events, advanced = click handlers + DOM re-rendering).
+          body:    JSON.stringify({
+            topic: <?= json_encode($slug) ?>,
+            mode:  'real',
+            level: <?= json_encode($level) ?>
+          }),
         });
 
         if (!res.ok) throw new Error('API returned ' + res.status);

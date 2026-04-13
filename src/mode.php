@@ -1,6 +1,11 @@
 <?php
-// mode.php — Mode picker: sits between practice.php and console.php.
-// The user picks Study mode (pure JS) or Real mode (JS targeting HTML elements).
+// mode.php — Difficulty picker: sits between practice.php and the console pages.
+// The user picks one of three difficulty levels for the chosen topic:
+//   • Beginner     — pure JS, no HTML, console.log only       → consolenohtml.php
+//   • Intermediate — HTML given, JS runs once, no events      → consolehtml.php
+//   • Advanced     — HTML given, interaction required         → consolehtml.php
+// The chosen level is forwarded via the `level` query param so the console
+// pages can pass it to the exercise generator API.
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/functions.php';
 require_login();
@@ -10,11 +15,15 @@ require_login();
 $slug  = isset($_GET['topic']) ? $_GET['topic'] : '';
 $topic = $slug !== '' ? ucwords(str_replace('-', ' ', $slug)) : 'Unknown Topic';
 
-// Build the destination URLs for each mode button.
-// Study mode → consolenohtml.php (pure JS, no HTML panel)
-// Real mode  → consolehtml.php  (JS targeting real HTML elements)
-$study_url = '/consolenohtml.php?topic=' . urlencode($slug);
-$real_url  = '/consolehtml.php?topic='  . urlencode($slug);
+// Build the destination URLs for each level button.
+// We URL-encode the slug because topic names may contain characters that
+// need escaping in a query string. Every link carries both `topic` and `level`.
+// Beginner    → consolenohtml.php (no HTML panel — pure JS)
+// Intermediate → consolehtml.php  (HTML given — no events)
+// Advanced    → consolehtml.php  (HTML given — event-driven)
+$beginner_url     = '/consolenohtml.php?topic=' . urlencode($slug) . '&level=beginner';
+$intermediate_url = '/consolehtml.php?topic='   . urlencode($slug) . '&level=intermediate';
+$advanced_url     = '/consolehtml.php?topic='   . urlencode($slug) . '&level=advanced';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -46,34 +55,49 @@ $real_url  = '/consolehtml.php?topic='  . urlencode($slug);
     </div>
   </nav>
 
-  <!-- ── Mode picker ─────────────────────────────────────────────── -->
+  <!-- ── Difficulty picker ───────────────────────────────────────── -->
   <div class="mode__layout">
 
     <!-- Topic label — tells the user what they're about to practice -->
-    <p class="mode__heading">How do you want to practice</p>
-    <p class="mode__topic"><?= h($topic) ?>?</p>
+    <p class="mode__heading">Pick a difficulty for</p>
+    <p class="mode__topic"><?= h($topic) ?></p>
 
-    <!-- Two mode cards — clicking one navigates to console.php with that mode -->
-    <div class="mode__options">
+    <!-- Three level cards — clicking one navigates to the matching console
+         page with both `topic` and `level` in the query string. -->
+    <div class="mode__options mode__options--three">
 
-      <!-- Study mode: pure JS, no HTML. Focus on the concept itself. -->
-      <a class="mode__card mode__card--study" href="<?= h($study_url) ?>">
-        <span class="mode__icon">📖</span>
-        <span class="mode__title">Study mode</span>
+      <!-- BEGINNER: pure JS only, no HTML/DOM. console.log exercises. -->
+      <a class="mode__card mode__card--beginner" href="<?= h($beginner_url) ?>">
+        <span class="mode__icon">🌱</span>
+        <span class="mode__title">Beginner</span>
         <span class="mode__desc">
-          Pure JavaScript — no HTML needed.<br>
-          Focus on the concept with console.log() output.
+          Pure JavaScript — no HTML.<br>
+          One concept, one console.log().
         </span>
-        <span class="mode__cta">Start studying →</span>
+        <span class="mode__cta">Start learning →</span>
       </a>
 
-      <!-- Real mode: JS targeting actual HTML elements, like a real project. -->
-      <a class="mode__card mode__card--real" href="<?= h($real_url) ?>">
-        <span class="mode__icon">🌐</span>
-        <span class="mode__title">Real mode</span>
+      <!-- INTERMEDIATE: HTML given, JS runs once on page load, no events.
+           The learner touches the DOM (getElementById, textContent) but
+           never wires up a click handler. -->
+      <a class="mode__card mode__card--intermediate" href="<?= h($intermediate_url) ?>">
+        <span class="mode__icon">🌿</span>
+        <span class="mode__title">Intermediate</span>
         <span class="mode__desc">
-          Write JavaScript that targets real HTML elements.<br>
-          See your changes live in the preview.
+          HTML is given. JS runs once on load.<br>
+          Read or change elements — no click events.
+        </span>
+        <span class="mode__cta">Start practicing →</span>
+      </a>
+
+      <!-- ADVANCED: HTML given with buttons. Learner must wire up click
+           events, update the DOM, and clear/re-render output. -->
+      <a class="mode__card mode__card--advanced" href="<?= h($advanced_url) ?>">
+        <span class="mode__icon">🌳</span>
+        <span class="mode__title">Advanced</span>
+        <span class="mode__desc">
+          Interactive: buttons, click events,<br>
+          DOM updates, clearing and re-rendering.
         </span>
         <span class="mode__cta">Start building →</span>
       </a>

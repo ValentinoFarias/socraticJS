@@ -11,6 +11,16 @@ require_login();
 $slug  = isset($_GET['topic']) ? $_GET['topic'] : '';
 $topic = $slug !== '' ? ucwords(str_replace('-', ' ', $slug)) : 'Unknown Topic';
 
+// Difficulty level — always "beginner" on this page (it is the no-HTML variant),
+// but we still read it from the URL and validate it so that:
+//   • the value comes from a single source (the URL), not a hard-coded string
+//   • an unexpected level from a copy-pasted link falls back safely to beginner
+//   • the exercise API can use this exact value in its prompt
+$level = isset($_GET['level']) ? $_GET['level'] : 'beginner';
+if ($level !== 'beginner') {
+    $level = 'beginner';
+}
+
 // Minimal iframe template — used as a sandbox to run the learner's JS safely.
 // It's hidden from view; the output panel is what the learner reads.
 $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body></body></html>';
@@ -300,7 +310,13 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
         var res = await fetch('/api/exercise.php', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ topic: <?= json_encode($slug) ?>, mode: 'study' }),
+          // Include `level` so the API can tailor the prompt to the right
+          // difficulty band (beginner here — no HTML, pure console.log).
+          body:    JSON.stringify({
+            topic: <?= json_encode($slug) ?>,
+            mode:  'study',
+            level: <?= json_encode($level) ?>
+          }),
         });
 
         if (!res.ok) throw new Error('API returned ' + res.status);

@@ -1068,24 +1068,37 @@ a:hover {
   text-decoration: none;
 }
 
-/* Study mode card — purple theme */
-.mode__card--study {
+/* Beginner card — green theme (growth / starting out).
+   Uses --color-success because the palette already has a green token and
+   we want to avoid inventing a new variable for a single use site. */
+.mode__card--beginner {
+  background: rgba(34, 197, 94, 0.12);   /* #22C55E at 12% — matches --color-success */
+  border-color: var(--color-success);
+}
+
+.mode__card--beginner:hover {
+  border-color: var(--color-success);
+  background: rgba(34, 197, 94, 0.2);
+}
+
+/* Intermediate card — purple theme (reuses the existing tutor colour tokens) */
+.mode__card--intermediate {
   background: rgba(124, 58, 237, 0.12);
   border-color: var(--color-tutor);
 }
 
-.mode__card--study:hover {
+.mode__card--intermediate:hover {
   border-color: var(--color-tutor-light);
   background: rgba(124, 58, 237, 0.2);
 }
 
-/* Real mode card — blue theme */
-.mode__card--real {
+/* Advanced card — blue theme (reuses the existing console colour tokens) */
+.mode__card--advanced {
   background: rgba(14, 165, 233, 0.12);
   border-color: var(--color-console);
 }
 
-.mode__card--real:hover {
+.mode__card--advanced:hover {
   border-color: var(--color-console-light);
   background: rgba(14, 165, 233, 0.2);
 }
@@ -1105,8 +1118,10 @@ a:hover {
   margin-bottom: 12px;
 }
 
-.mode__card--study .mode__title { color: var(--color-tutor-light); }
-.mode__card--real  .mode__title { color: var(--color-console-light); }
+/* Per-level title colours — pick up each card's accent */
+.mode__card--beginner     .mode__title { color: var(--color-success); }
+.mode__card--intermediate .mode__title { color: var(--color-tutor-light); }
+.mode__card--advanced     .mode__title { color: var(--color-console-light); }
 
 /* Short description below the title */
 .mode__desc {
@@ -1126,8 +1141,10 @@ a:hover {
   font-weight: 700;
 }
 
-.mode__card--study .mode__cta { color: var(--color-tutor-light); }
-.mode__card--real  .mode__cta { color: var(--color-console-light); }
+/* Per-level CTA colours — same accent as the title */
+.mode__card--beginner     .mode__cta { color: var(--color-success); }
+.mode__card--intermediate .mode__cta { color: var(--color-tutor-light); }
+.mode__card--advanced     .mode__cta { color: var(--color-console-light); }
 
 /* Back link below the cards */
 .mode__back {
