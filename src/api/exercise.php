@@ -101,6 +101,11 @@ IMPORTANT:
 - Escape backslashes in regex: \\b not \b, \\s not \s (the expression is inside a JSON string).
 - Keep challenges focused and achievable for a complete beginner.
 
+VARIETY (IMPORTANT — avoid repeating yourself):
+- Each request includes a "Scenario" hint and a "Variation" number. Use them.
+- Build the exercise around the given Scenario (characters, context, variable names, story) so two requests for the same topic feel different.
+- Never reuse the same example sentences, variable names, or log outputs across requests — treat the Variation number as a signal that this MUST be a fresh challenge.
+
 7-PHASE JS ROADMAP (use to determine phase number):
 Phase 1 — The Very Basics: variables, let/const, typeof, type coercion, template literals, ==vs===, nullish coalescing
 Phase 2 — Control Flow: if/else, switch, ternary, for loop, while loop, for...of, for...in
@@ -111,8 +116,41 @@ Phase 6 — Async JavaScript: setTimeout, setInterval, Promises, async/await, fe
 Phase 7 — Advanced & Modern JS: closures, this keyword, classes, inheritance, ES modules, error handling, event loop
 PROMPT;
 
+// ── Variety injection ───────────────────────────────────────────────────
+// Without this, Claude returns almost the same exercise every time for the
+// same (topic, mode). We pass two things that change on every request:
+//   1. A random scenario theme from the list below (gives the exercise a
+//      different "flavor" — shopping cart, weather app, game score, etc.)
+//   2. A random integer "variation seed" — even if the same theme is picked
+//      twice, the seed makes the user message unique, nudging the model
+//      toward a different answer.
+$themes = [
+    'shopping cart / product list',
+    'weather forecast',
+    'music playlist',
+    'video game score and lives',
+    'to-do list',
+    'recipe ingredients',
+    'movie ratings',
+    'sports team standings',
+    'chat messages',
+    'fitness tracker steps',
+    'bank account transactions',
+    'library books',
+    'pet adoption app',
+    'travel destinations',
+    'coffee shop order',
+    'classroom attendance',
+    'quiz questions and answers',
+    'plant watering schedule',
+    'calendar events',
+    'photo gallery',
+];
+$theme = $themes[array_rand($themes)];
+$variation_seed = random_int(1000, 9999);
+
 // ── User message — tells Claude WHAT to generate ────────────────────────
-$user_message = "Topic: \"$topic\", Mode: \"$mode\"";
+$user_message = "Topic: \"$topic\"\nMode: \"$mode\"\nScenario: $theme\nVariation: $variation_seed";
 
 $payload = json_encode([
     'model'      => 'claude-sonnet-4-20250514',
