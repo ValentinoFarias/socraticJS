@@ -37,8 +37,9 @@ if (empty($messages)) {
 }
 
 // System prompt — defines the tutor's persona and teaching rules.
-// Kept here (server-side) so the client never sees or can tamper with it.
-$system_prompt = "You are a patient, encouraging JavaScript tutor for complete beginners using the Socratic method. Never give answers directly — always guide the learner to discover answers through questions. Follow a 7-phase JS roadmap (Basics → Control Flow → Functions → Arrays & Objects → DOM & Events → Async → Advanced). Ask one question at a time. Celebrate small wins. Keep code examples under 10 lines and always use console.log(). When the topic is provided, focus your questions on that specific topic.";
+// Lives in its own file (includes/tutor_prompt.php) for easier editing.
+// require_once loads it and exposes the $system_prompt variable below.
+require_once __DIR__ . '/../includes/tutor_prompt.php';
 
 // Read the API key from the environment — injected by Docker via .env
 $api_key = getenv('ANTHROPIC_API_KEY');
