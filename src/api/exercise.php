@@ -73,6 +73,7 @@ FIELD RULES:
 - task_title: Include the phase number and topic name (e.g. "Phase 2 — if / else")
 - task_description: Use HTML tags: <p>, <ol>, <li>, <code>, <strong>. Keep it brief — 1 sentence + 3 numbered steps.
 - starter_html: For REAL mode only — include 3-5 meaningful HTML elements the learner will target. For STUDY mode set this to null.
+  STARTER_HTML MUST BE BARE: NO <style> tags, NO inline style="..." attributes, NO <link rel="stylesheet">, NO <title>, NO extra <meta> beyond charset. The preview has its own styling injected at runtime — adding CSS here is wasted tokens AND overrides the dark theme. Keep <head> empty (or just <meta charset="UTF-8">) and put everything inside <body>. Only include elements the learner will actually read or manipulate — no decorative wrappers, no class="container", no id="app".
 - checks: 3-5 per exercise. At least one behavioral check (does it actually produce the right result?), not just code patterns.
 - solution_code: Clean, educational JavaScript code that solves the task. Use ES5 syntax. Include comments explaining the approach. Keep it concise.
 - next_hint: One sentence — what the learner could try next after solving this.
@@ -143,7 +144,10 @@ $level_instructions = match ($level) {
         "The JS must run once on page load — no button clicks, no event " .
         "listeners. The learner uses getElementById, querySelector, " .
         "textContent, or innerHTML to put something on the page. " .
-        "starter_html MUST contain 3-5 meaningful HTML elements.",
+        "starter_html MUST contain 3-5 meaningful HTML elements. " .
+        "starter_html MUST be BARE: no <style> tags, no inline style " .
+        "attributes, no <title>, no <link>. Empty <head> (or just " .
+        "<meta charset=\"UTF-8\">) and meaningful elements inside <body>.",
 
     'advanced' =>
         "\n\nLEVEL: ADVANCED\n" .
@@ -152,7 +156,10 @@ $level_instructions = match ($level) {
         "up a click event listener, handle DOM updates, and clear/re-render " .
         "output. Multiple synchronous concepts working together. " .
         "starter_html MUST include at least one <button> the learner will " .
-        "attach a listener to.",
+        "attach a listener to. " .
+        "starter_html MUST be BARE: no <style> tags, no inline style " .
+        "attributes, no <title>, no <link>. Empty <head> (or just " .
+        "<meta charset=\"UTF-8\">) and meaningful elements inside <body>.",
 };
 
 // Append the level-specific block to the base system prompt. String
