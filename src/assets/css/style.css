@@ -717,7 +717,10 @@ a:hover {
   margin-bottom: 8px;
 }
 
-/* Study / Real mode badge shown next to the phase label */
+/* Difficulty-level badge shown next to the phase label in the task card.
+   The modifier classes below each match the accent colour used on the
+   matching mode.php difficulty card, so the badge here is visually
+   consistent with the card the learner clicked on the previous page. */
 .c-mode-badge {
   display: inline-block;
   font-size: 10px;
@@ -731,15 +734,22 @@ a:hover {
   letter-spacing: 0;
 }
 
-/* Study mode badge — muted/neutral */
-.c-mode-study {
-  background: var(--color-surface-2);
-  color: var(--color-text-muted);
-  border: 0.5px solid var(--color-border);
+/* Beginner badge — green tint matching --color-success */
+.c-mode-beginner {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--color-success);
+  border: 0.5px solid var(--color-success);
 }
 
-/* Real mode badge — blue tint matching --color-console */
-.c-mode-real {
+/* Intermediate badge — purple tint matching --color-tutor */
+.c-mode-intermediate {
+  background: rgba(124, 58, 237, 0.15);
+  color: var(--color-tutor-light);
+  border: 0.5px solid var(--color-tutor);
+}
+
+/* Advanced badge — blue tint matching --color-console */
+.c-mode-advanced {
   background: rgba(14, 165, 233, 0.15);
   color: var(--color-console-light);
   border: 0.5px solid var(--color-console);

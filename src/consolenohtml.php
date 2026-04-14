@@ -70,7 +70,7 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
     <div class="c-task-card">
       <div class="c-task-title" id="task-title">
         Ready for a new challenge?
-        <span class="c-mode-badge c-mode-study">📖 Study</span>
+        <span class="c-mode-badge c-mode-beginner">🌱 Beginner</span>
       </div>
       <div class="c-task-body" id="task-body">
         <p class="c-hint">Click <strong>New Challenge</strong> to generate a study-mode exercise for <?= h($topic) ?>.</p>
@@ -301,7 +301,7 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
       isLoadingExercise = true;
       newChallengeBtn.disabled = true;
       newChallengeBtn.textContent = 'Loading...';
-      titleEl.innerHTML = 'Loading exercise… <span class="c-mode-badge c-mode-study">📖 Study</span>';
+      titleEl.innerHTML = 'Loading exercise… <span class="c-mode-badge c-mode-beginner">🌱 Beginner</span>';
       bodyEl.innerHTML = '<p class="c-hint">Generating your challenge…</p>';
       CHECKS = [];
       jsEditor.setValue('');
@@ -329,7 +329,7 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
         currentExercise = exercise;
 
         titleEl.innerHTML = esc(exercise.task_title || '<?= h($topic) ?>') +
-          ' <span class="c-mode-badge c-mode-study">📖 Study</span>';
+          ' <span class="c-mode-badge c-mode-beginner">🌱 Beginner</span>';
 
         bodyEl.innerHTML = exercise.task_description || '<p>No description available.</p>';
 
@@ -342,7 +342,7 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
         console.warn('Could not load exercise:', e);
 
         titleEl.innerHTML = 'Phase ? — <?= h($topic) ?>' +
-          ' <span class="c-mode-badge c-mode-study">📖 Study</span>';
+          ' <span class="c-mode-badge c-mode-beginner">🌱 Beginner</span>';
 
         bodyEl.innerHTML =
           '<p>Could not generate exercise — try refreshing the page.</p>' +

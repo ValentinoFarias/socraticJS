@@ -19,6 +19,14 @@ if ($level !== 'intermediate' && $level !== 'advanced') {
     $level = 'intermediate';
 }
 
+// Badge shown next to the task title. We compute both the visible label
+// (emoji + text) and the CSS modifier class from $level so every badge
+// on the page stays in sync with the chosen difficulty.
+// Using a ternary because there are only two possible values here —
+// the third level (beginner) lives on consolenohtml.php.
+$level_label = $level === 'advanced' ? '🌳 Advanced' : '🌿 Intermediate';
+$level_class = $level === 'advanced' ? 'c-mode-advanced' : 'c-mode-intermediate';
+
 // Default starter HTML — replaced by the AI-generated template once the API responds.
 $starter_html = implode("\n", [
     '<!DOCTYPE html>',
@@ -79,7 +87,7 @@ $starter_html = implode("\n", [
     <div class="c-task-card">
       <div class="c-task-title" id="task-title">
         Ready for a new challenge?
-        <span class="c-mode-badge c-mode-real">🌐 Real</span>
+        <span class="c-mode-badge <?= h($level_class) ?>"><?= h($level_label) ?></span>
       </div>
       <div class="c-task-body" id="task-body">
         <p class="c-hint">Click <strong>New Challenge</strong> to generate a real-mode exercise for <?= h($topic) ?>.</p>
@@ -429,7 +437,7 @@ $starter_html = implode("\n", [
       isLoadingExercise = true;
       newChallengeBtn.disabled = true;
       newChallengeBtn.textContent = 'Loading...';
-      titleEl.innerHTML = 'Loading exercise… <span class="c-mode-badge c-mode-real">🌐 Real</span>';
+      titleEl.innerHTML = 'Loading exercise… <span class="c-mode-badge <?= h($level_class) ?>"><?= h($level_label) ?></span>';
       bodyEl.innerHTML = '<p class="c-hint">Generating your challenge…</p>';
       CHECKS = [];
       jsEditor.setValue('');
@@ -461,7 +469,7 @@ $starter_html = implode("\n", [
         currentExercise = exercise;
 
         titleEl.innerHTML = esc(exercise.task_title || '<?= h($topic) ?>') +
-          ' <span class="c-mode-badge c-mode-real">🌐 Real</span>';
+          ' <span class="c-mode-badge <?= h($level_class) ?>"><?= h($level_label) ?></span>';
 
         bodyEl.innerHTML = exercise.task_description || '<p>No description available.</p>';
 
@@ -482,7 +490,7 @@ $starter_html = implode("\n", [
         console.warn('Could not load exercise:', e);
 
         titleEl.innerHTML = 'Phase ? — <?= h($topic) ?>' +
-          ' <span class="c-mode-badge c-mode-real">🌐 Real</span>';
+          ' <span class="c-mode-badge <?= h($level_class) ?>"><?= h($level_label) ?></span>';
 
         bodyEl.innerHTML =
           '<p>Could not generate exercise — try refreshing the page.</p>' +
