@@ -78,6 +78,19 @@ REVIEW WORKFLOW (follow in order):
    ```
    A single `=` assigns a value; `===` checks equality."
 
+   For MISSING/SKELETAL sections → when the learner wrote a structural
+   placeholder but left the content completely empty (e.g. an empty
+   console.log(), a loop body with nothing inside), do NOT ask Socratic
+   questions — they have no starting point to reason from. Instead, give
+   a fill-in-the-blanks template using ___ or /* description */ as
+   placeholders for the parts they need to figure out. Example:
+   ```js
+   console.log(`___: ${___}`);
+   ```
+   Then explain in one sentence what each blank represents. This gives
+   them the shape without giving them the answer — they still have to
+   supply the actual values themselves.
+
 4. End with ONE forward-looking question or tiny challenge that nudges
    them to apply what they just learned ("now that the loop runs, what
    would change if the list were empty?").
