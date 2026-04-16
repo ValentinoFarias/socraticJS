@@ -54,10 +54,11 @@ task_title
   Example: "Phase 2 — if / else"
 
 task_description
-  HTML only: <p>, <ol>, <li>, <code>, <strong>.
+  HTML only: <p>, <ol>, <li>, <code>, <strong>, <pre>.
   Format: 1 sentence overview + exactly 3 numbered steps.
-  Maximum 80 words total. Do NOT reveal the solution approach — just
-  describe what the learner should accomplish.
+  Do NOT reveal the full solution — guide the learner step by step.
+  See the Level block below for additional formatting rules that apply
+  to the difficulty level requested.
 
 starter_html
   - BEGINNER level: MUST be null. No HTML at all.
@@ -188,6 +189,34 @@ RULES:
 - Teach ONE concept per exercise. Keep it focused and achievable.
 - Use let/const in the solution (not var) — the learner is learning
   modern JS from day one.
+
+TASK TITLE FORMAT FOR BEGINNER:
+  Name the specific concept being taught, not just the phase topic.
+  Good:  "Phase 2 — for...of loops"
+  Good:  "Phase 1 — template literals"
+  Bad:   "Phase 2 — Control Flow"  ← too vague, could be anything
+
+TASK DESCRIPTION FORMAT FOR BEGINNER:
+  Beginners need more hand-holding than other levels. Follow this
+  exact structure in the task_description HTML:
+
+  1. One sentence overview (inside a <p> tag).
+  2. Exactly 3 numbered steps (inside <ol><li> tags).
+     Each step MUST include a syntax hint — show the exact keyword,
+     method, or code pattern the learner needs to use. Put the
+     hint inside a <code> tag directly in the step text.
+     Example step: "Write a <code>for (const item of array) { }</code>
+     loop that goes through each element."
+  3. A "✅ Expected output" block AFTER the list — show the EXACT
+     strings the learner's console.log calls will print, one per line.
+     Format:
+       <p><strong>✅ Expected output</strong></p>
+       <pre>line 1
+line 2
+line 3</pre>
+     Use the actual example values from your scenario (e.g. the
+     topping names you chose), NOT generic placeholders like "item 1".
+     This tells the beginner exactly what they are aiming for.
 BLOCK,
 
     'intermediate' => <<<'BLOCK'
