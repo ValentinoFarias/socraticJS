@@ -202,11 +202,18 @@ TASK DESCRIPTION FORMAT FOR BEGINNER:
 
   1. One sentence overview (inside a <p> tag).
   2. Exactly 3 numbered steps (inside <ol><li> tags).
-     Each step MUST include a syntax hint — show the exact keyword,
-     method, or code pattern the learner needs to use. Put the
-     hint inside a <code> tag directly in the step text.
-     Example step: "Write a <code>for (const item of array) { }</code>
-     loop that goes through each element."
+     Each step MUST include a syntax hint — show the keyword or a
+     short skeleton, NOT a complete working expression. The learner
+     should still have to figure out the details themselves.
+     Put the hint inside a <code> tag directly in the step text.
+     Good hint: "Write a <code>for</code> loop using an index variable
+       to go through each team — think about the start value, the
+       condition, and the increment."
+     Bad hint:  "Write a <code>for (let i = 0; i < teams.length; i++)</code>
+       loop" ← gives away the full answer, learner just copies it.
+     When a step involves string formatting, mention template literals
+     as an option: "hint: template literals
+     <code>`text ${variable}`</code> let you mix text and variables."
   3. A "✅ Expected output" block AFTER the list — show the EXACT
      strings the learner's console.log calls will print, one per line.
      Format:
