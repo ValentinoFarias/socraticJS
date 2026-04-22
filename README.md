@@ -151,8 +151,7 @@ Full registration and login flow with bcrypt password hashing (`password_hash`),
    ```
 
 4. **Visit the app**
-   - App: [http://localhost:8080](http://localhost:8080)
-   - phpMyAdmin: [http://localhost:8081](http://localhost:8081)
+   - App: [https://socraticjs-6175a41ed31f.herokuapp.com/]
 
 The database schema and seed data (phases, topics, lessons) are applied automatically on first run from `docker/mysql/init/`.
 
