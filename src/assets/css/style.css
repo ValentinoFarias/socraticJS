@@ -396,9 +396,11 @@ a:hover {
    ============================================================================= */
 
 /* Make the tutor page fill exactly one viewport — no page scroll.
-   The messages area scrolls internally instead. */
+   The messages area scrolls internally instead.
+   100dvh tracks the visual viewport on mobile (address bar + home indicator aware),
+   which prevents the input area from being clipped on iOS Safari. */
 .page--tutor {
-  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -546,12 +548,14 @@ a:hover {
 
 /* ── Input area ───────────────────────────────────────────────────── */
 
-/* Pinned to the bottom of the container — never scrolls away */
+/* Pinned to the bottom of the container — never scrolls away.
+   env(safe-area-inset-bottom) adds extra bottom space on iPhones with
+   a home indicator bar so the textarea is never hidden behind it. */
 .tutor__input-area {
   display: flex;
   gap: 10px;
   align-items: flex-end;
-  padding: 16px 0 20px;
+  padding: 16px 0 max(20px, env(safe-area-inset-bottom));
   border-top: 0.5px solid var(--color-border);
   flex-shrink: 0;
 }
