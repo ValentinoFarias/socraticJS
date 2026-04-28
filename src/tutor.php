@@ -358,6 +358,22 @@ foreach ($phase_topics as $number => $topics) {
     // Scroll to bottom on initial load (in case there are placeholder messages)
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
+    // ── iOS Safari height fix ───────────────────────────────────────
+    // CSS values like 100dvh and -webkit-fill-available are unreliable on iOS:
+    // the body ends up taller than the visible viewport, pushing the input area
+    // below the fold where overflow:hidden clips it.
+    // The Visual Viewport API gives the true visible height at all times
+    // (accounting for the address bar, home indicator, and keyboard).
+    // Inline style has highest specificity so it overrides the CSS height rules.
+    function syncHeight() {
+      document.body.style.height =
+        (window.visualViewport ? window.visualViewport.height : window.innerHeight) + 'px';
+    }
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', syncHeight);
+    }
+    syncHeight();
+
     // ── Auto-start — seed the conversation with the current topic ───
     // This runs silently: we add a user turn to the history so the tutor
     // knows which topic to focus on, without showing it as a visible bubble.
