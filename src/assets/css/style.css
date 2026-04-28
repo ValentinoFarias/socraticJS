@@ -1289,11 +1289,307 @@ a:hover {
   color: var(--color-green);
 }
 
-/* TODO */
-
 
 /* =============================================================================
-   Media Queries — ALL breakpoints collected here, smallest → largest
+   Media Queries — ALL breakpoints collected here, largest → smallest
+   max-width overrides because the base CSS is desktop-first.
    ============================================================================= */
 
-/* TODO */
+
+/* ── 1024px — Tablets / small laptops ──────────────────────────────────────── */
+@media (max-width: 1024px) {
+
+  /* Nav — tighten the wide horizontal padding */
+  .nav {
+    padding: 16px 32px;
+  }
+
+  /* Home — shrink computers so they don't overflow the viewport */
+  .home__computer {
+    width: 340px;
+  }
+
+  .home__computers {
+    gap: 48px;
+    padding-top: 40px;
+  }
+
+  /* About — less extreme side padding */
+  .about__content {
+    padding: 40px 64px 56px;
+  }
+
+  /* Study / Practice — tighter side margins on the roadmap lists */
+  .study__roadmap {
+    padding: 0 48px 64px;
+  }
+
+  .practice__roadmap {
+    padding: 0 80px 64px;
+  }
+}
+
+
+/* ── 768px — Tablets ────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* Nav — reduce padding, font, and right-side gap */
+  .nav {
+    padding: 12px 24px;
+  }
+
+  .nav__logo {
+    width: 80px;
+  }
+
+  .nav__link {
+    font-size: 1.1rem;
+  }
+
+  .nav__greeting {
+    font-size: 1.1rem;
+  }
+
+  .nav__right {
+    gap: 20px;
+  }
+
+  /* Home — smaller computers, tighter gap */
+  .home__computer {
+    width: 280px;
+  }
+
+  .home__computers {
+    gap: 32px;
+    padding-top: 32px;
+  }
+
+  .home__computer-link {
+    font-size: 1.5rem;
+  }
+
+  /* About */
+  .about__content {
+    padding: 32px 40px 48px;
+  }
+
+  .about__content p {
+    font-size: 1.2rem;
+  }
+
+  /* Study */
+  .study__subtitle {
+    font-size: 1.5rem;
+    padding: 24px 32px 20px;
+  }
+
+  .study__roadmap {
+    padding: 0 32px 64px;
+  }
+
+  /* Practice */
+  .practice__subtitle {
+    font-size: 1.5rem;
+    padding: 24px 32px 20px;
+  }
+
+  .practice__roadmap {
+    padding: 0 32px 64px;
+  }
+
+  /* Mode — narrower cards */
+  .mode__card {
+    width: 240px;
+    padding: 24px 20px;
+  }
+
+  /* Auth — less negative top margin on smaller screens */
+  .auth__card {
+    padding: 40px 32px;
+    margin-top: -40px;
+  }
+}
+
+
+/* ── 640px — Phones ─────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+
+  /* ── Navigation ───────────────────────────────────────────────── */
+
+  /* Compact padding, smaller font so all three columns fit on 375px */
+  .nav {
+    padding: 12px 16px;
+  }
+
+  .nav__logo {
+    width: 64px;
+  }
+
+  .nav__link {
+    font-size: 0.875rem;
+  }
+
+  .nav__greeting {
+    font-size: 0.8rem;
+    max-width: 80px;          /* truncate long usernames instead of overflowing */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nav__right {
+    gap: 10px;
+  }
+
+  /* ── Home — stack computers vertically ───────────────────────── */
+
+  /* Let the page scroll — stacked computers won't fit in one viewport */
+  .home {
+    height: auto;
+    min-height: 100dvh;       /* dvh avoids the iOS browser-chrome jump */
+    overflow: visible;
+  }
+
+  .home__title {
+    font-size: 1.4rem;
+    padding: 0 16px;
+    margin-top: 16px;
+  }
+
+  .home__computers {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding-top: 24px;
+    padding-bottom: 40px;
+  }
+
+  /* min() ensures the computer never overflows a narrow viewport */
+  .home__computer {
+    width: min(320px, 88vw);
+    flex-shrink: 1;
+  }
+
+  /* ── About ────────────────────────────────────────────────────── */
+
+  .about__content {
+    padding: 20px 16px 40px;
+  }
+
+  .about__content p {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  /* ── Study ────────────────────────────────────────────────────── */
+
+  .study__subtitle {
+    font-size: 1.2rem;
+    padding: 16px 16px 12px;
+  }
+
+  .study__roadmap {
+    padding: 0 16px 48px;
+  }
+
+  /* Sticky note overlaps content on small screens — hide it */
+  .study__sticky-note {
+    display: none;
+  }
+
+  /* ── Practice ─────────────────────────────────────────────────── */
+
+  .practice__subtitle {
+    font-size: 1.2rem;
+    padding: 16px 16px 12px;
+  }
+
+  .practice__roadmap {
+    padding: 0 16px 48px;
+  }
+
+  /* ── Tutor ────────────────────────────────────────────────────── */
+
+  /* dvh accounts for the mobile address-bar so the chat never gets clipped */
+  .page--tutor {
+    height: 100dvh;
+  }
+
+  .tutor__container {
+    padding: 8px 12px 0;
+  }
+
+  /* Wider bubbles so short lines don't wrap awkwardly on a narrow screen */
+  .tutor__bubble {
+    max-width: 90%;
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+
+  /* ── Console ──────────────────────────────────────────────────── */
+
+  .console__layout {
+    padding: 16px 12px 48px;
+  }
+
+  /* Let the hint text wrap onto its own line rather than squeezing the buttons */
+  .c-toolbar {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .c-toolbar .c-toolbar__hint {
+    width: 100%;
+  }
+
+  /* Slightly shorter editors so the full widget fits on a phone screen */
+  .c-panel .CodeMirror-scroll {
+    min-height: 180px;
+  }
+
+  #js-panel .CodeMirror-scroll {
+    min-height: 220px;
+  }
+
+  /* ── Mode ─────────────────────────────────────────────────────── */
+
+  .mode__layout {
+    padding: 24px 16px 48px;
+    min-height: calc(100dvh - 90px);
+  }
+
+  .mode__topic {
+    font-size: 1.5rem;
+    margin-bottom: 32px;
+  }
+
+  /* Stack the difficulty cards vertically on phones */
+  .mode__options {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .mode__card {
+    width: min(340px, 90vw);
+  }
+
+  /* ── Auth (login / register) ──────────────────────────────────── */
+
+  /* Remove the negative top margin that assumes a fixed nav height */
+  .auth {
+    align-items: flex-start;
+    padding: 32px 16px;
+    min-height: auto;
+  }
+
+  .auth__card {
+    max-width: 100%;
+    padding: 32px 20px;
+    margin-top: 0;
+  }
+
+  .auth__title {
+    font-size: 1.375rem;
+    margin-bottom: 24px;
+  }
+}
