@@ -396,14 +396,26 @@ a:hover {
    ============================================================================= */
 
 /* Make the tutor page fill exactly one viewport — no page scroll.
-   The messages area scrolls internally instead.
-   100dvh tracks the visual viewport on mobile (address bar + home indicator aware),
-   which prevents the input area from being clipped on iOS Safari. */
+   The messages area scrolls internally instead. */
 .page--tutor {
   height: 100dvh;
+  /* The base body style sets min-height: 100vh. On iOS Safari, 100vh is
+     inflated to include the browser chrome, so min-height wins over height
+     and makes the body taller than the visual viewport — hiding the input.
+     min-height: 0 stops that from happening. */
+  min-height: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+/* iOS Safari specific: -webkit-fill-available is the only value that
+   reliably equals the visual viewport height on iOS (accounting for the
+   address bar, bottom toolbar, and home indicator bar). */
+@supports (-webkit-touch-callout: none) {
+  .page--tutor {
+    height: -webkit-fill-available;
+  }
 }
 
 /* Centred column that fills the remaining height below the nav */
