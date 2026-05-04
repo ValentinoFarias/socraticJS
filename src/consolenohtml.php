@@ -114,6 +114,17 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
       </div>
     </div>
 
+    <!-- Follow-up chat input — always visible below the Output panel.
+         Bubbles (initial review + follow-ups) render inside #output above. -->
+    <div class="c-chat-input-row" id="chat-panel">
+      <textarea
+        id="chat-input"
+        placeholder="Ask a follow-up question… (e.g. 'how do I use an array index?')"
+        rows="1"
+      ></textarea>
+      <button class="c-chat-send" id="chat-send-btn" type="button">Send ↑</button>
+    </div>
+
   </div><!-- /.console__layout -->
 
   <script src="/assets/js/main.js"></script>
@@ -159,6 +170,7 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
       }
 
       output.innerHTML = '<span class="c-hint">Running…</span>';
+      output.dataset.mode = 'run';   // chat bubbles will clear this if a review starts
 
       // Still use srcdoc + onload for safe sandboxed execution —
       // even though the iframe is hidden, the pattern prevents timing bugs.
@@ -247,6 +259,7 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
     document.getElementById('reset-btn').addEventListener('click', function () {
       jsEditor.setValue('');
       output.innerHTML = '<span class="c-hint">Run your code to see results.</span>';
+      resetChat();
     });
 
     // Show answer — populate the JS editor with the solution code
@@ -259,15 +272,157 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
       output.innerHTML = '<span class="c-hint">Solution loaded. Click <strong>Run</strong> to see it work.</span>';
     });
 
+    // ── Chat state ──────────────────────────────────────────────────
+    // chatHistory holds the full conversation [{role, content}] sent to the
+    // follow-up endpoint on every message so Claude has full context.
+    // Bubbles render inside the Output panel — there is no separate chat list.
+    var chatInput    = document.getElementById('chat-input');
+    var chatSendBtn  = document.getElementById('chat-send-btn');
+    var chatHistory  = [];
+
+    // Reset the chat for a brand-new exercise — old conversation is no longer relevant
+    function resetChat() {
+      chatHistory = [];
+    }
+
+    // Render a single chat bubble inside the Output panel.
+    // role = 'ai' | 'user'. Markdown-ish parser handles ```code``` + `inline`.
+    function appendChatBubble(role, text) {
+      // First bubble after a Run: clear the run output so the chat thread
+      // starts fresh inside the Output panel.
+      if (output.dataset.mode !== 'chat') {
+        output.innerHTML = '';
+        output.dataset.mode = 'chat';
+      }
+
+      var row = document.createElement('div');
+      row.className = 'c-chat-message c-chat-message--' + role;
+
+      var html = renderChatText(text);
+
+      if (role === 'ai') {
+        row.innerHTML =
+          '<div class="c-chat-avatar">JS</div>' +
+          '<div class="c-chat-bubble">' + html + '</div>';
+      } else {
+        row.innerHTML = '<div class="c-chat-bubble">' + html + '</div>';
+      }
+
+      output.appendChild(row);
+      output.scrollTop = output.scrollHeight;
+    }
+
+    // Append a transient loading bubble to the Output panel; returns its id
+    function appendLoadingBubble(text) {
+      if (output.dataset.mode !== 'chat') {
+        output.innerHTML = '';
+        output.dataset.mode = 'chat';
+      }
+      var id  = 'chat-loading-' + Date.now();
+      var row = document.createElement('div');
+      row.id = id;
+      row.className = 'c-chat-message c-chat-message--ai';
+      row.innerHTML =
+        '<div class="c-chat-avatar">JS</div>' +
+        '<div class="c-chat-bubble">' + esc(text) + '</div>';
+      output.appendChild(row);
+      output.scrollTop = output.scrollHeight;
+      return id;
+    }
+
+    // Lightweight Markdown → HTML for chat bubbles.
+    // Handles ```code blocks```, `inline code`, and preserves newlines.
+    function renderChatText(raw) {
+      var safe = esc(raw);
+
+      // ```code blocks```
+      safe = safe.replace(/```(\w*)\n?([\s\S]*?)```/g, function (_, _lang, code) {
+        return '<pre><code>' + code.replace(/\n$/, '') + '</code></pre>';
+      });
+
+      // `inline code` — single backticks
+      safe = safe.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+
+      // Preserve newlines outside <pre> blocks
+      // (split by <pre>…</pre>, replace \n only in non-pre chunks)
+      var parts = safe.split(/(<pre>[\s\S]*?<\/pre>)/);
+      safe = parts.map(function (chunk) {
+        if (chunk.indexOf('<pre>') === 0) return chunk;
+        return chunk.replace(/\n/g, '<br>');
+      }).join('');
+
+      return safe;
+    }
+
+    // Auto-grow the chat textarea up to 96px, matches CSS max-height
+    chatInput.addEventListener('input', function () {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 96) + 'px';
+    });
+
+    // Enter sends, Shift+Enter inserts a newline
+    chatInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChatMessage();
+      }
+    });
+
+    chatSendBtn.addEventListener('click', sendChatMessage);
+
+    // ── sendChatMessage() — POST /api/review_chat.php with full history ──
+    async function sendChatMessage() {
+      var text = chatInput.value.trim();
+      if (!text) return;
+
+      appendChatBubble('user', text);
+      chatHistory.push({ role: 'user', content: text });
+      chatInput.value = '';
+      chatInput.style.height = 'auto';
+      chatSendBtn.disabled = true;
+
+      var loadingId = appendLoadingBubble('…');
+
+      try {
+        var res = await fetch('/api/review_chat.php', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            messages: chatHistory,
+            code: jsEditor.getValue().trim(),
+            topic: <?= json_encode($topic) ?>,
+            task_title: currentExercise.task_title,
+            task_description: currentExercise.task_description,
+            checks: currentExercise.checks,
+            mode: 'study'
+          }),
+        });
+        var data  = await res.json();
+        var reply = data.content?.[0]?.text ?? 'Sorry, something went wrong.';
+
+        chatHistory.push({ role: 'assistant', content: reply });
+        document.getElementById(loadingId)?.remove();
+        appendChatBubble('ai', reply);
+      } catch (e) {
+        document.getElementById(loadingId)?.remove();
+        appendChatBubble('ai', 'Connection error — please try again.');
+      } finally {
+        chatSendBtn.disabled = false;
+      }
+    }
+
+    // ── Review button — kicks off the chat with the initial Socratic review ──
     document.getElementById('review-btn').addEventListener('click', async function () {
       var code = jsEditor.getValue().trim();
       if (!code) {
         output.innerHTML = '<span class="c-hint">Write some code first, then hit Review!</span>';
+        output.dataset.mode = 'run';
         return;
       }
-      output.innerHTML = '<span class="c-hint">Getting AI feedback…</span>';
+
+      var loadingId = appendLoadingBubble('Reviewing your code…');
+
       try {
-        // Send the full exercise context so Claude sees the task, checks, and code together.
         var res  = await fetch('/api/review.php', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -282,11 +437,21 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
         });
         var data     = await res.json();
         var feedback = data.content?.[0]?.text ?? 'Could not get feedback.';
-        output.innerHTML =
-          '<div style="padding:4px 0;font-family:var(--font-sans);font-size:14px;line-height:1.7;color:var(--color-text)">' +
-          esc(feedback).replace(/\n/g, '<br>') + '</div>';
+
+        document.getElementById(loadingId)?.remove();
+
+        // Seed the conversation history so follow-ups have context.
+        // Anthropic requires alternating roles starting with user, so we
+        // record an implicit user turn before the assistant's review.
+        chatHistory.push({
+          role: 'user',
+          content: 'Please review my code for this exercise.'
+        });
+        chatHistory.push({ role: 'assistant', content: feedback });
+        appendChatBubble('ai', feedback);
       } catch (e) {
-        output.innerHTML = '<span class="c-log c-log--err">Review failed — check your connection.</span>';
+        document.getElementById(loadingId)?.remove();
+        appendChatBubble('ai', 'Review failed — check your connection.');
       }
     });
 
@@ -306,6 +471,7 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
       CHECKS = [];
       jsEditor.setValue('');
       output.innerHTML = '<span class="c-hint">Run your code to see results.</span>';
+      resetChat();   // wipe any previous conversation — new exercise = new chat
 
       try {
         var res = await fetch('/api/exercise.php', {

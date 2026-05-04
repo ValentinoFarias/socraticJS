@@ -1031,6 +1031,153 @@ a:hover {
   color: var(--color-success);
 }
 
+/* ── Tutor chat (consolehtml.php + consolenohtml.php) ────────────────
+   The chat input lives below the Output panel; the conversation bubbles
+   render INSIDE the Output panel itself, replacing the run output once a
+   review starts. This keeps the layout flat: only one feedback area. */
+
+/* When the Output panel is in chat mode, give bubbles room to breathe */
+.c-output[data-mode="chat"] {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* One row = one turn in the conversation */
+.c-chat-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* User messages sit on the right */
+.c-chat-message--user {
+  flex-direction: row-reverse;
+}
+
+/* Tiny purple avatar circle next to AI messages */
+.c-chat-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-tutor);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Shared bubble base */
+.c-chat-bubble {
+  max-width: 80%;
+  padding: 10px 14px;
+  white-space: pre-wrap;            /* keep newlines and code formatting */
+  word-wrap: break-word;
+}
+
+/* AI bubble: light card, flat top-left corner */
+.c-chat-message--ai .c-chat-bubble {
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 0.5px solid var(--color-border);
+  border-radius: 4px 10px 10px 10px;
+}
+
+/* User bubble: solid purple, flat top-right corner */
+.c-chat-message--user .c-chat-bubble {
+  background: var(--color-tutor);
+  color: #ffffff;
+  border-radius: 10px 4px 10px 10px;
+}
+
+/* Inline code blocks inside AI bubbles */
+.c-chat-message--ai .c-chat-bubble code {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  background: rgba(0, 0, 0, 0.07);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+/* Multi-line code blocks inside AI bubbles */
+.c-chat-message--ai .c-chat-bubble pre {
+  background: #282a36;              /* match Dracula editor bg */
+  color: #f8f8f2;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  padding: 10px 12px;
+  border-radius: 4px;
+  margin: 6px 0;
+  overflow-x: auto;
+  line-height: 1.5;
+}
+.c-chat-message--ai .c-chat-bubble pre code {
+  background: transparent;          /* avoid double background inside <pre> */
+  padding: 0;
+}
+
+/* Input row — sits directly below the Output panel, always visible */
+.c-chat-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  padding: 10px;
+  margin-top: 8px;
+  border: 0.5px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+}
+
+/* Textarea — auto-grows up to 4 lines, then scrolls internally */
+.c-chat-input-row textarea {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 0.5px solid var(--color-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+  min-height: 38px;
+  max-height: 96px;
+  overflow-y: auto;
+}
+
+.c-chat-input-row textarea:focus {
+  border-color: var(--color-tutor);
+}
+
+/* Send button — same purple as the rest of the tutor UI */
+.c-chat-send {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0 14px;
+  height: 38px;
+  background: var(--color-tutor);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.c-chat-send:hover  { opacity: 0.85; }
+.c-chat-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 
 /* =============================================================================
    Mode Page  (mode.php)

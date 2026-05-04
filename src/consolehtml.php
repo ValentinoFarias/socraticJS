@@ -154,6 +154,17 @@ $starter_html = implode("\n", [
       </div>
     </div>
 
+    <!-- Follow-up chat input — always visible below the Output panel.
+         Bubbles (initial review + follow-ups) render inside #output above. -->
+    <div class="c-chat-input-row" id="chat-panel">
+      <textarea
+        id="chat-input"
+        placeholder="Ask a follow-up question… (e.g. 'how do I select an element by id?')"
+        rows="1"
+      ></textarea>
+      <button class="c-chat-send" id="chat-send-btn" type="button">Send ↑</button>
+    </div>
+
   </div><!-- /.console__layout -->
 
   <script src="/assets/js/main.js"></script>
@@ -279,6 +290,7 @@ $starter_html = implode("\n", [
       }
 
       output.innerHTML = '<span class="c-hint">Running…</span>';
+      output.dataset.mode = 'run';   // chat bubbles will clear this if a review starts
 
       // Load the current HTML into the iframe, then inject the learner's JS
       preview.srcdoc = getIframeTemplate();
@@ -370,6 +382,7 @@ $starter_html = implode("\n", [
       htmlEditor.setValue(currentStarterHtml);
       output.innerHTML = '<span class="c-hint">Run your code to see results.</span>';
       preview.srcdoc = getIframeTemplate();
+      resetChat();
     });
 
     // Apply HTML — reloads the iframe with whatever is in the HTML editor.
@@ -389,16 +402,141 @@ $starter_html = implode("\n", [
       output.innerHTML = '<span class="c-hint">Solution loaded. Click <strong>Run</strong> to see it work.</span>';
     });
 
+    // ── Chat state ──────────────────────────────────────────────────
+    // chatHistory holds the full conversation [{role, content}] sent to the
+    // follow-up endpoint on every message so Claude has full context.
+    // Bubbles render inside the Output panel — there is no separate chat list.
+    var chatInput    = document.getElementById('chat-input');
+    var chatSendBtn  = document.getElementById('chat-send-btn');
+    var chatHistory  = [];
+
+    function resetChat() {
+      chatHistory = [];
+    }
+
+    // Render a chat bubble inside the Output panel.
+    // Supports ```code blocks``` and `inline code`.
+    function appendChatBubble(role, text) {
+      // First bubble after a Run: clear the run output so the chat thread
+      // starts fresh inside the Output panel.
+      if (output.dataset.mode !== 'chat') {
+        output.innerHTML = '';
+        output.dataset.mode = 'chat';
+      }
+
+      var row = document.createElement('div');
+      row.className = 'c-chat-message c-chat-message--' + role;
+      var html = renderChatText(text);
+      if (role === 'ai') {
+        row.innerHTML =
+          '<div class="c-chat-avatar">JS</div>' +
+          '<div class="c-chat-bubble">' + html + '</div>';
+      } else {
+        row.innerHTML = '<div class="c-chat-bubble">' + html + '</div>';
+      }
+      output.appendChild(row);
+      output.scrollTop = output.scrollHeight;
+    }
+
+    // Append a transient loading bubble to the Output panel; returns its id
+    function appendLoadingBubble(text) {
+      if (output.dataset.mode !== 'chat') {
+        output.innerHTML = '';
+        output.dataset.mode = 'chat';
+      }
+      var id  = 'chat-loading-' + Date.now();
+      var row = document.createElement('div');
+      row.id = id;
+      row.className = 'c-chat-message c-chat-message--ai';
+      row.innerHTML =
+        '<div class="c-chat-avatar">JS</div>' +
+        '<div class="c-chat-bubble">' + esc(text) + '</div>';
+      output.appendChild(row);
+      output.scrollTop = output.scrollHeight;
+      return id;
+    }
+
+    // Lightweight Markdown → HTML for chat bubbles.
+    function renderChatText(raw) {
+      var safe = esc(raw);
+      safe = safe.replace(/```(\w*)\n?([\s\S]*?)```/g, function (_, _lang, code) {
+        return '<pre><code>' + code.replace(/\n$/, '') + '</code></pre>';
+      });
+      safe = safe.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+      var parts = safe.split(/(<pre>[\s\S]*?<\/pre>)/);
+      safe = parts.map(function (chunk) {
+        if (chunk.indexOf('<pre>') === 0) return chunk;
+        return chunk.replace(/\n/g, '<br>');
+      }).join('');
+      return safe;
+    }
+
+    chatInput.addEventListener('input', function () {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 96) + 'px';
+    });
+
+    chatInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChatMessage();
+      }
+    });
+
+    chatSendBtn.addEventListener('click', sendChatMessage);
+
+    async function sendChatMessage() {
+      var text = chatInput.value.trim();
+      if (!text) return;
+
+      appendChatBubble('user', text);
+      chatHistory.push({ role: 'user', content: text });
+      chatInput.value = '';
+      chatInput.style.height = 'auto';
+      chatSendBtn.disabled = true;
+
+      var loadingId = appendLoadingBubble('…');
+
+      try {
+        var res = await fetch('/api/review_chat.php', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            messages: chatHistory,
+            code: jsEditor.getValue().trim(),
+            topic: <?= json_encode($topic) ?>,
+            task_title: currentExercise.task_title,
+            task_description: currentExercise.task_description,
+            starter_html: htmlEditor.getValue(),
+            checks: currentExercise.checks,
+            mode: 'real'
+          }),
+        });
+        var data  = await res.json();
+        var reply = data.content?.[0]?.text ?? 'Sorry, something went wrong.';
+        chatHistory.push({ role: 'assistant', content: reply });
+        document.getElementById(loadingId)?.remove();
+        appendChatBubble('ai', reply);
+      } catch (e) {
+        document.getElementById(loadingId)?.remove();
+        appendChatBubble('ai', 'Connection error — please try again.');
+      } finally {
+        chatSendBtn.disabled = false;
+      }
+    }
+
+    // ── Review button — opens the chat with the initial Socratic review ──
     document.getElementById('review-btn').addEventListener('click', async function () {
       var code = jsEditor.getValue().trim();
       if (!code) {
         output.innerHTML = '<span class="c-hint">Write some code first, then hit Review!</span>';
+        output.dataset.mode = 'run';
         return;
       }
-      output.innerHTML = '<span class="c-hint">Getting AI feedback…</span>';
+
+      var loadingId = appendLoadingBubble('Reviewing your code…');
+
       try {
-        // Send the full exercise context to the review API so Claude has the complete picture.
-        // This includes the task, HTML, and check rules — not just the code.
         var res  = await fetch('/api/review.php', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -414,11 +552,21 @@ $starter_html = implode("\n", [
         });
         var data     = await res.json();
         var feedback = data.content?.[0]?.text ?? 'Could not get feedback.';
-        output.innerHTML =
-          '<div style="padding:4px 0;font-family:var(--font-sans);font-size:14px;line-height:1.7;color:var(--color-text)">' +
-          esc(feedback).replace(/\n/g, '<br>') + '</div>';
+
+        document.getElementById(loadingId)?.remove();
+
+        // Seed the chat history so follow-ups have full context.
+        // Anthropic requires alternating roles starting with user, so we
+        // record an implicit user turn before the assistant's review.
+        chatHistory.push({
+          role: 'user',
+          content: 'Please review my code for this exercise.'
+        });
+        chatHistory.push({ role: 'assistant', content: feedback });
+        appendChatBubble('ai', feedback);
       } catch (e) {
-        output.innerHTML = '<span class="c-log c-log--err">Review failed — check your connection.</span>';
+        document.getElementById(loadingId)?.remove();
+        appendChatBubble('ai', 'Review failed — check your connection.');
       }
     });
 
@@ -443,6 +591,7 @@ $starter_html = implode("\n", [
       jsEditor.setValue('');
       output.innerHTML = '<span class="c-hint">Run your code to see results.</span>';
       preview.srcdoc = '';
+      resetChat();   // wipe any previous conversation — new exercise = new chat
 
       try {
         var res = await fetch('/api/exercise.php', {
