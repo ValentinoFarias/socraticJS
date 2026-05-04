@@ -432,7 +432,9 @@ $starter_html = implode("\n", [
           '<div class="c-chat-avatar">JS</div>' +
           '<div class="c-chat-bubble">' + html + '</div>';
       } else {
-        row.innerHTML = '<div class="c-chat-bubble">' + html + '</div>';
+        row.innerHTML =
+          '<div class="c-chat-avatar">$</div>' +
+          '<div class="c-chat-bubble">' + html + '</div>';
       }
       output.appendChild(row);
       output.scrollTop = output.scrollHeight;

@@ -305,7 +305,9 @@ $iframe_template = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><bod
           '<div class="c-chat-avatar">JS</div>' +
           '<div class="c-chat-bubble">' + html + '</div>';
       } else {
-        row.innerHTML = '<div class="c-chat-bubble">' + html + '</div>';
+        row.innerHTML =
+          '<div class="c-chat-avatar">$</div>' +
+          '<div class="c-chat-bubble">' + html + '</div>';
       }
 
       output.appendChild(row);

@@ -1032,15 +1032,17 @@ a:hover {
 }
 
 /* ── Tutor chat (consolehtml.php + consolenohtml.php) ────────────────
-   The chat input lives below the Output panel; the conversation bubbles
-   render INSIDE the Output panel itself, replacing the run output once a
-   review starts. This keeps the layout flat: only one feedback area. */
+   Styled to match the VS Code integrated terminal: dark mono surface,
+   flat bubbles, no rounded "chat app" feel. The conversation renders
+   INSIDE the Output panel and the input sits flush below it. */
 
 /* When the Output panel is in chat mode, give bubbles room to breathe */
 .c-output[data-mode="chat"] {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  background: #1e1e1e;              /* VS Code terminal bg */
+  font-family: var(--font-mono);
 }
 
 /* One row = one turn in the conversation */
@@ -1048,128 +1050,158 @@ a:hover {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  font-family: var(--font-sans);
-  font-size: 14px;
+  font-family: var(--font-mono);
+  font-size: 13px;
   line-height: 1.6;
 }
 
-/* User messages sit on the right */
+/* Both turns flow left-to-right like a terminal log — no right-aligned bubbles */
 .c-chat-message--user {
-  flex-direction: row-reverse;
+  flex-direction: row;
 }
 
-/* Tiny purple avatar circle next to AI messages */
+/* Tiny prompt-style avatar — flat square, mono, terminal-like */
 .c-chat-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--color-tutor);
-  color: #ffffff;
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--color-tutor-light);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  border: 0.5px solid var(--color-tutor);
 }
 
-/* Shared bubble base */
+/* Shared bubble base — flat, full-width terminal block */
 .c-chat-bubble {
-  max-width: 80%;
-  padding: 10px 14px;
-  white-space: pre-wrap;            /* keep newlines and code formatting */
+  flex: 1;
+  padding: 6px 10px;
+  white-space: pre-wrap;
   word-wrap: break-word;
+  border-radius: 3px;
+  border-left: 2px solid transparent;
 }
 
-/* AI bubble: light card, flat top-left corner */
+/* AI line — terminal text, accent border to mark the assistant turn */
 .c-chat-message--ai .c-chat-bubble {
-  background: #ffffff;
-  color: #1a1a1a;
-  border: 0.5px solid var(--color-border);
-  border-radius: 4px 10px 10px 10px;
+  background: transparent;
+  color: #d4d4d4;                   /* VS Code default fg */
+  border-left-color: var(--color-tutor);
 }
 
-/* User bubble: solid purple, flat top-right corner */
+/* User line — slightly brighter, accent border on left */
 .c-chat-message--user .c-chat-bubble {
-  background: var(--color-tutor);
-  color: #ffffff;
-  border-radius: 10px 4px 10px 10px;
+  background: rgba(124, 58, 237, 0.08);
+  color: #f0f0f0;
+  border-left-color: var(--color-tutor-light);
 }
 
-/* Inline code blocks inside AI bubbles */
-.c-chat-message--ai .c-chat-bubble code {
+/* User "prompt" marker — a "$" instead of the JS avatar */
+.c-chat-message--user .c-chat-avatar {
+  color: var(--color-success);
+  border-color: rgba(34, 197, 94, 0.6);
+}
+
+/* Inline code — VS Code token-style background */
+.c-chat-bubble code {
   font-family: var(--font-mono);
   font-size: 12.5px;
-  background: rgba(0, 0, 0, 0.07);
-  border-radius: 3px;
-  padding: 1px 5px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ce9178;                   /* VS Code string colour */
+  border-radius: 2px;
+  padding: 1px 4px;
 }
 
-/* Multi-line code blocks inside AI bubbles */
-.c-chat-message--ai .c-chat-bubble pre {
-  background: #282a36;              /* match Dracula editor bg */
+/* Multi-line code blocks — match the editor's Dracula bg */
+.c-chat-bubble pre {
+  background: #282a36;
   color: #f8f8f2;
   font-family: var(--font-mono);
   font-size: 12.5px;
   padding: 10px 12px;
-  border-radius: 4px;
+  border-radius: 3px;
   margin: 6px 0;
   overflow-x: auto;
   line-height: 1.5;
+  border: 0.5px solid var(--color-border);
 }
-.c-chat-message--ai .c-chat-bubble pre code {
-  background: transparent;          /* avoid double background inside <pre> */
+.c-chat-bubble pre code {
+  background: transparent;
+  color: inherit;
   padding: 0;
 }
 
-/* Input row — sits directly below the Output panel, always visible */
+/* Input row — terminal prompt feel: flush, dark, mono */
 .c-chat-input-row {
   display: flex;
-  gap: 8px;
-  align-items: flex-end;
-  padding: 10px;
+  gap: 0;
+  align-items: stretch;
+  padding: 0;
   margin-top: 8px;
   border: 0.5px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-surface);
+  border-radius: 3px;
+  background: #1e1e1e;
+  overflow: hidden;
 }
 
-/* Textarea — auto-grows up to 4 lines, then scrolls internally */
+/* "$ " prompt indicator before the textarea */
+.c-chat-input-row::before {
+  content: "$";
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-success);
+  background: #1e1e1e;
+  flex-shrink: 0;
+}
+
+/* Textarea — flat, mono, no rounded corners — looks like a terminal input */
 .c-chat-input-row textarea {
   flex: 1;
-  font-family: var(--font-sans);
-  font-size: 14px;
-  color: var(--color-text);
-  background: var(--color-bg);
-  border: 0.5px solid var(--color-border);
-  border-radius: 6px;
-  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: #d4d4d4;
+  background: #1e1e1e;
+  border: none;
+  border-radius: 0;
+  padding: 8px 10px 8px 0;
   resize: none;
   outline: none;
   line-height: 1.5;
-  min-height: 38px;
+  min-height: 36px;
   max-height: 96px;
   overflow-y: auto;
 }
 
-.c-chat-input-row textarea:focus {
-  border-color: var(--color-tutor);
+.c-chat-input-row textarea::placeholder {
+  color: #6a6a6a;
 }
 
-/* Send button — same purple as the rest of the tutor UI */
+.c-chat-input-row textarea:focus {
+  background: #1e1e1e;
+}
+
+/* Send button — flat, mono, hugs the right edge of the prompt */
 .c-chat-send {
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 700;
   padding: 0 14px;
-  height: 38px;
   background: var(--color-tutor);
   color: #ffffff;
   border: none;
-  border-radius: 6px;
+  border-radius: 0;
   cursor: pointer;
   flex-shrink: 0;
+  letter-spacing: 0.02em;
 }
 
 .c-chat-send:hover  { opacity: 0.85; }
